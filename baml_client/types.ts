@@ -72,8 +72,20 @@ export interface A2Quiz {
   
 }
 
+export interface A3PreQuiz {
+  mainQuestion: string
+  subQuestion: QAunit[]
+  
+}
+
+export interface BPreQuiz {
+  shared_options: QuizOptions[]
+  questions: QAunitForB[]
+  
+}
+
 export interface BasicQuiz {
-  type: "single" | "multiple"
+  type: "single" | "multiple" | "share_question" | "share_option"
   question: string
   options: string[]
   answer: string
@@ -86,14 +98,37 @@ export interface ContentSlice {
   
 }
 
-export interface QuestionAnswerPair {
+export interface QAunit {
+  question: string
+  options: QuizOptions[]
+  answer: string
+  
+}
+
+export interface QAunitForB {
   question: string
   answer: string
   
 }
 
+export interface QuestionAnswerPair {
+  question: string
+  answer: string
+  type: "single" | "multiple" | "share_question" | "share_option"
+  
+}
+
 export interface QuestionAnswerSlice {
+  type: "single" | "multiple" | "share_question" | "share_option"
   question_range: number[]
+  answer: string
+  
+}
+
+export interface QuestionAnswerWithAnalysisSlice {
+  type: "single" | "multiple" | "share_question" | "share_option"
+  question_range: number[]
+  answer_range: string
   answer: string
   
 }

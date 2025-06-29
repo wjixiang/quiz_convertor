@@ -16,3 +16,21 @@ client<llm> QiniuDeepseekV3 {
     base_url "https://api.qnaigc.com/v1"
   }
 }
+
+client<llm> GeminiFlash {
+  provider openai-generic
+  options {
+    model "gemini-2.5-flash-preview-05-20"
+    api_key env.SHENMA_API_KEY
+    base_url "https://api.whatai.cc/v1"
+  }
+}
+
+client<llm> GeminiFlashOpenrouter {
+  provider openai-generic
+  options {
+    model "google/gemini-2.5-pro"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+  }
+}

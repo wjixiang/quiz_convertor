@@ -26,13 +26,23 @@ export default class TypeBuilder {
     
     A2Quiz: ClassViewer<'A2Quiz', "type" | "class" | "unit" | "tags" | "question" | "options" | "answer" | "analysis" | "source">;
     
+    A3PreQuiz: ClassViewer<'A3PreQuiz', "mainQuestion" | "subQuestion">;
+    
+    BPreQuiz: ClassViewer<'BPreQuiz', "shared_options" | "questions">;
+    
     BasicQuiz: ClassViewer<'BasicQuiz', "type" | "question" | "options" | "answer">;
     
     ContentSlice: ClassViewer<'ContentSlice', "start" | "end">;
     
-    QuestionAnswerPair: ClassViewer<'QuestionAnswerPair', "question" | "answer">;
+    QAunit: ClassViewer<'QAunit', "question" | "options" | "answer">;
     
-    QuestionAnswerSlice: ClassViewer<'QuestionAnswerSlice', "question_range" | "answer">;
+    QAunitForB: ClassViewer<'QAunitForB', "question" | "answer">;
+    
+    QuestionAnswerPair: ClassViewer<'QuestionAnswerPair', "question" | "answer" | "type">;
+    
+    QuestionAnswerSlice: ClassViewer<'QuestionAnswerSlice', "type" | "question_range" | "answer">;
+    
+    QuestionAnswerWithAnalysisSlice: ClassViewer<'QuestionAnswerWithAnalysisSlice', "type" | "question_range" | "answer_range" | "answer">;
     
     QuizAnalysis: ClassViewer<'QuizAnalysis', "point" | "discuss" | "ai_analysis" | "link">;
     
@@ -47,7 +57,7 @@ export default class TypeBuilder {
     constructor() {
         this.tb = new _TypeBuilder({
           classes: new Set([
-            "A1Quiz","A2Quiz","BasicQuiz","ContentSlice","QuestionAnswerPair","QuestionAnswerSlice","QuizAnalysis","QuizOptions","Resume","SplitText",
+            "A1Quiz","A2Quiz","A3PreQuiz","BPreQuiz","BasicQuiz","ContentSlice","QAunit","QAunitForB","QuestionAnswerPair","QuestionAnswerSlice","QuestionAnswerWithAnalysisSlice","QuizAnalysis","QuizOptions","Resume","SplitText",
           ]),
           enums: new Set([
             
@@ -63,6 +73,14 @@ export default class TypeBuilder {
           "type","class","unit","tags","question","options","answer","analysis","source",
         ]);
         
+        this.A3PreQuiz = this.tb.classViewer("A3PreQuiz", [
+          "mainQuestion","subQuestion",
+        ]);
+        
+        this.BPreQuiz = this.tb.classViewer("BPreQuiz", [
+          "shared_options","questions",
+        ]);
+        
         this.BasicQuiz = this.tb.classViewer("BasicQuiz", [
           "type","question","options","answer",
         ]);
@@ -71,12 +89,24 @@ export default class TypeBuilder {
           "start","end",
         ]);
         
-        this.QuestionAnswerPair = this.tb.classViewer("QuestionAnswerPair", [
+        this.QAunit = this.tb.classViewer("QAunit", [
+          "question","options","answer",
+        ]);
+        
+        this.QAunitForB = this.tb.classViewer("QAunitForB", [
           "question","answer",
         ]);
         
+        this.QuestionAnswerPair = this.tb.classViewer("QuestionAnswerPair", [
+          "question","answer","type",
+        ]);
+        
         this.QuestionAnswerSlice = this.tb.classViewer("QuestionAnswerSlice", [
-          "question_range","answer",
+          "type","question_range","answer",
+        ]);
+        
+        this.QuestionAnswerWithAnalysisSlice = this.tb.classViewer("QuestionAnswerWithAnalysisSlice", [
+          "type","question_range","answer_range","answer",
         ]);
         
         this.QuizAnalysis = this.tb.classViewer("QuizAnalysis", [

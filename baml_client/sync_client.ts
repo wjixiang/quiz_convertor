@@ -19,7 +19,7 @@ import type { BamlRuntime, FunctionResult, BamlCtxManager, Image, Audio, ClientR
 import { toBamlError, type HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type * as types from "./types"
-import type {A1Quiz, A2Quiz, BasicQuiz, ContentSlice, QuestionAnswerPair, QuestionAnswerSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
+import type {A1Quiz, A2Quiz, A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithAnalysisSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
 import type TypeBuilder from "./type_builder"
 import { HttpRequest, HttpStreamRequest } from "./sync_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -106,6 +106,56 @@ export class BamlSyncClient {
         env,
       )
       return raw.parsed(false) as A1Quiz
+    } catch (error: any) {
+      throw toBamlError(error);
+    }
+  }
+  
+  ConvertToA3Quiz(
+      question: string,answer: string,
+      __baml_options__?: BamlCallOptions
+  ): A3PreQuiz {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
+      const raw = this.runtime.callFunctionSync(
+        "ConvertToA3Quiz",
+        {
+          "question": question,"answer": answer
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as A3PreQuiz
+    } catch (error: any) {
+      throw toBamlError(error);
+    }
+  }
+  
+  ConvertToBQuiz(
+      question: string,answer: string,
+      __baml_options__?: BamlCallOptions
+  ): BPreQuiz {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
+      const raw = this.runtime.callFunctionSync(
+        "ConvertToBQuiz",
+        {
+          "question": question,"answer": answer
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as BPreQuiz
     } catch (error: any) {
       throw toBamlError(error);
     }

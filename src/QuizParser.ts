@@ -2,7 +2,7 @@ import { quiz } from "./types/quizData.types";
 
 import { b } from '../baml_client/async_client';
 import { TextSegmenter } from "./TextSegmenter";
-import type { oid, A1, A2, X } from "./types/quizData.types";
+import type { oid, A1, A2, X, A3, B } from "./types/quizData.types";
 import pLimit from 'p-limit';
 import * as dotenv from "dotenv";
 dotenv.config()
@@ -26,39 +26,27 @@ export class QuizParser {
   async parse(config?: Partial<quiz>): Promise<QuizWithoutId[]> {
     const matchedPairs = await this.matchQuestionsAnswers();
     
-    // Limit concurrency to 5 at a time
-    const limit = pLimit(5);
-    const basicQuizzes = await Promise.all(
-      matchedPairs.map(pair =>
-        limit(() => b.ConvertToBasicQuiz(pair.question, pair.answer)
-          .catch(err => {
-            console.error(`Failed to convert quiz: ${err.message}`);
-            return null;
-          }))
-      )
-    );
-
-    const transformedQuizzes: QuizWithoutId[] = basicQuizzes
-      .filter((basicQuiz): basicQuiz is BasicQuiz => basicQuiz !== null)
-      .map(basicQuiz => {
-        const options = basicQuiz.options.map((text: string, i: number) => ({
-          oid: String.fromCharCode(65 + i) as oid,
-          text
-        }));
-
-        const normalizedAnswer = this.normalizeAnswer(basicQuiz.answer, options);
-        const isMultiQuestion = basicQuiz.type === 'multiple';
-
-        // Create A1 or X quiz object based on question type
-        if (isMultiQuestion) {
+  
+    const limit = pLimit(20); // Limit to 5 concurrent operations
+    const transformedQuizzes = await Promise.all(matchedPairs
+      .map(basicQuiz => limit(async () => {
+        try {
+          if (basicQuiz.type === 'multiple') {
+            const preQuiz = await b.ConvertToBasicQuiz(basicQuiz.question, basicQuiz.answer)
+          const options = preQuiz.options.map((text: string, i: number) => ({
+                    oid: String.fromCharCode(65 + i) as oid,
+                    text
+                  }));
+          const normalizedAnswer = this.normalizeAnswer(preQuiz.answer, options);
+              
           const xQuiz: X = {
             _id: '', // Will be omitted in final return
-            type: 'X',
+            type:  'X',
             class: config?.class ?? '',
             unit: config?.unit ?? '',
             tags: config?.tags ?? [],
             source: config?.source ?? '',
-            question: basicQuiz.question, // X question is a string
+            question: preQuiz.question, // X question is a string
             options,
             answer: normalizedAnswer as oid[],
             analysis: {
@@ -71,15 +59,76 @@ export class QuizParser {
           };
           const { _id, ...withoutId } = xQuiz;
           return withoutId;
-        } else {
-          const a1Quiz: A1 = {
-            _id: '', // Will be omitted in final return
-            type: 'A1',
+        } else if(basicQuiz.type === "share_question"){
+          const preQuiz = await b.ConvertToA3Quiz(basicQuiz.question, basicQuiz.answer)
+          const a3Quiz: A3 = {
+            _id: '',
+            type: 'A3',
             class: config?.class ?? '',
             unit: config?.unit ?? '',
             tags: config?.tags ?? [],
             source: config?.source ?? '',
-            question: basicQuiz.question, // A1 question is a string
+            mainQuestion: preQuiz.mainQuestion,
+            subQuizs: preQuiz.subQuestion.map((e,index)=>{return{
+              subQuizId: index,
+              question: e.question,
+              options: e.options,
+              answer: e.answer as oid
+            }})
+            ,
+            analysis: {
+              point: config?.analysis?.point ?? null,
+              discuss: config?.analysis?.discuss ?? null,
+              ai_analysis: config?.analysis?.ai_analysis,
+              link: config?.analysis?.link ?? []
+            },
+            surrealRecordId: undefined
+          };
+
+          return a3Quiz
+        } else if(basicQuiz.type === 'share_option') {
+          const preQuiz = await b.ConvertToBQuiz(basicQuiz.question, basicQuiz.answer)
+          const bQuiz: B = {
+            _id: '',
+            type: 'B',
+            class: config?.class ?? '',
+            unit: config?.unit ?? '',
+            tags: config?.tags ?? [],
+            source: config?.source ?? '',
+            questions: preQuiz.questions.map((e,index)=>{
+              return {
+              questionId: index,
+              questionText: e.question,
+              answer: e.answer as oid
+            }
+            }),
+            options: preQuiz.shared_options,
+            analysis: {
+              point: config?.analysis?.point ?? null,
+              discuss: config?.analysis?.discuss ?? null,
+              ai_analysis: config?.analysis?.ai_analysis,
+              link: config?.analysis?.link ?? []
+            },
+            surrealRecordId: undefined
+          };
+
+          return bQuiz
+        }
+        else{
+          const preQuiz = await b.ConvertToBasicQuiz(basicQuiz.question, basicQuiz.answer)
+          const options = preQuiz.options.map((text: string, i: number) => ({
+                    oid: String.fromCharCode(65 + i) as oid,
+                    text
+                  }));
+          const normalizedAnswer = this.normalizeAnswer(preQuiz.answer, options);
+          const aQuiz: A1 | A2 = {
+            _id: '', // Will be omitted in final return
+            type: config?.type === "A2" ? "A2" : 'A1',
+            class: config?.class ?? '',
+            unit: config?.unit ?? '',
+            tags: config?.tags ?? [],
+            source: config?.source ?? '',
+            question: preQuiz.question, // A1 question is a string
             options,
             answer: normalizedAnswer as oid,
             analysis: {
@@ -90,16 +139,23 @@ export class QuizParser {
             },
             surrealRecordId: undefined
           };
-          const { _id, ...withoutId } = a1Quiz;
+          const { _id, ...withoutId } = aQuiz;
           return withoutId;
         }
-      });
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Unknown error';
+          console.error(`Failed to process quiz: ${message}`);
+          return null;
+        }
+      })));
 
-    if (transformedQuizzes.length === 0) {
+    const resolvedQuizzes = (await transformedQuizzes).filter(q => q !== null) as QuizWithoutId[];
+    
+    if (resolvedQuizzes.length === 0) {
       throw new Error('No valid quizzes could be generated');
     }
 
-    return transformedQuizzes;
+    return resolvedQuizzes;
   }
 
   /**
@@ -166,8 +222,7 @@ export class QuizParser {
    * Match questions with answers using split points
    */
   async matchQuestionsAnswers(): Promise<QuestionAnswerPair[]> {
-    const questionSegments = this.questionsText.getSegments()
-    const answerSegments = this.markSplitPoints(this.answersText);
+    
     
     const results = await b.MatchQuestionsAnswers({
       questions: this.questionsText.renderForLLM(),
@@ -178,6 +233,7 @@ export class QuizParser {
     });
 
     return results.map(result => ({
+      type: result.type,
       question: this.questionsText.getTextByRange(result.question_range[0],result.question_range[1]),
       answer: result.answer
     }));

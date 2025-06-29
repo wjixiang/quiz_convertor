@@ -1,53 +1,5 @@
-import { expect, test } from "vitest";
-import { QuizParser } from '../QuizParser';
-import * as dotenv from "dotenv";
-dotenv.config()
+import { QuizParser } from "../QuizParser";
 
-// test("handles single-choice answers", async () => {
-//   const questions = `1. What is 1+1?
-// A) 1
-// B) 2
-// C) 3
-// D) 4
-// Answer: B
-
-// 2. What is 2+2?
-// A) 1
-// B) 2
-// C) 3
-// D) 4
-// Answer: D`;
-
-//   const answers = `1-5BCACC`;
-//   const parser = new QuizParser(questions, answers);
-//   const results = await parser.matchQuestionsAnswers();
-//   expect(results[0].answer).toBe("B");
-//   expect(results[1].answer).toBe("D");
-// });
-
-// test("handles multiple-choice answers", async () => {
-//   const questions = `1. Which are even numbers?
-// A) 1
-// B) 2
-// C) 3
-// D) 4
-// Answer: BD
-
-// 2. Which are prime numbers?
-// A) 1
-// B) 2
-// C) 3
-// D) 4
-// Answer: BC`;
-
-//   const answers = `1-5BCACC`;
-//   const parser = new QuizParser(questions, answers);
-//   const results = await parser.matchQuestionsAnswers();
-//   expect(results[0].answer).toBe("BD");
-//   expect(results[1].answer).toBe("BC");
-// });
-
-// Original Chinese medical quiz test
 const sampleQuestions = `
 一、A型题
 1.甲亢行甲状腺次全切术后，产生危象的原因为
@@ -499,9 +451,4 @@ async function main() {
   });
 }
 
-test("multimode quiz extraction", async()=>{
-  await main()
-},{timeout: 99999})
-
-
-// main().catch(console.error);
+main().catch(console.error)

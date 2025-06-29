@@ -20,7 +20,7 @@ import { toBamlError, BamlStream, type HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type { partial_types } from "./partial_types"
 import type * as types from "./types"
-import type {A1Quiz, A2Quiz, BasicQuiz, ContentSlice, QuestionAnswerPair, QuestionAnswerSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
+import type {A1Quiz, A2Quiz, A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithAnalysisSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
 import type TypeBuilder from "./type_builder"
 import { AsyncHttpRequest, AsyncHttpStreamRequest } from "./async_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -104,6 +104,56 @@ export class BamlAsyncClient {
         env,
       )
       return raw.parsed(false) as A1Quiz
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async ConvertToA3Quiz(
+      question: string,answer: string,
+      __baml_options__?: BamlCallOptions
+  ): Promise<A3PreQuiz> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
+      const raw = await this.runtime.callFunction(
+        "ConvertToA3Quiz",
+        {
+          "question": question,"answer": answer
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as A3PreQuiz
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async ConvertToBQuiz(
+      question: string,answer: string,
+      __baml_options__?: BamlCallOptions
+  ): Promise<BPreQuiz> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
+      const raw = await this.runtime.callFunction(
+        "ConvertToBQuiz",
+        {
+          "question": question,"answer": answer
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as BPreQuiz
     } catch (error) {
       throw toBamlError(error);
     }
@@ -247,6 +297,68 @@ class BamlStreamClient {
         raw,
         (a): partial_types.A1Quiz => a,
         (a): A1Quiz => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  ConvertToA3Quiz(
+      question: string,answer: string,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
+  ): BamlStream<partial_types.A3PreQuiz, A3PreQuiz> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
+      const raw = this.runtime.streamFunction(
+        "ConvertToA3Quiz",
+        {
+          "question": question,"answer": answer
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return new BamlStream<partial_types.A3PreQuiz, A3PreQuiz>(
+        raw,
+        (a): partial_types.A3PreQuiz => a,
+        (a): A3PreQuiz => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  ConvertToBQuiz(
+      question: string,answer: string,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
+  ): BamlStream<partial_types.BPreQuiz, BPreQuiz> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
+      const raw = this.runtime.streamFunction(
+        "ConvertToBQuiz",
+        {
+          "question": question,"answer": answer
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return new BamlStream<partial_types.BPreQuiz, BPreQuiz>(
+        raw,
+        (a): partial_types.BPreQuiz => a,
+        (a): BPreQuiz => a,
         this.ctxManager.cloneContext(),
       )
     } catch (error) {
