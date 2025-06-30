@@ -26,11 +26,11 @@ export default class TypeBuilder {
     
     A2Quiz: ClassViewer<'A2Quiz', "type" | "class" | "unit" | "tags" | "question" | "options" | "answer" | "analysis" | "source">;
     
-    A3PreQuiz: ClassViewer<'A3PreQuiz', "mainQuestion" | "subQuestion">;
+    A3PreQuiz: ClassViewer<'A3PreQuiz', "mainQuestion" | "subQuestion" | "explanation">;
     
-    BPreQuiz: ClassViewer<'BPreQuiz', "shared_options" | "questions">;
+    BPreQuiz: ClassViewer<'BPreQuiz', "shared_options" | "questions" | "explanation">;
     
-    BasicQuiz: ClassViewer<'BasicQuiz', "type" | "question" | "options" | "answer">;
+    BasicQuiz: ClassViewer<'BasicQuiz', "type" | "question" | "options" | "answer" | "explanation">;
     
     ContentSlice: ClassViewer<'ContentSlice', "start" | "end">;
     
@@ -38,11 +38,13 @@ export default class TypeBuilder {
     
     QAunitForB: ClassViewer<'QAunitForB', "question" | "answer">;
     
-    QuestionAnswerPair: ClassViewer<'QuestionAnswerPair', "question" | "answer" | "type">;
+    QuestionAnswerPair: ClassViewer<'QuestionAnswerPair', "type" | "question" | "answer">;
     
     QuestionAnswerSlice: ClassViewer<'QuestionAnswerSlice', "type" | "question_range" | "answer">;
     
-    QuestionAnswerWithAnalysisSlice: ClassViewer<'QuestionAnswerWithAnalysisSlice', "type" | "question_range" | "answer_range" | "answer">;
+    QuestionAnswerWithExplanationPair: ClassViewer<'QuestionAnswerWithExplanationPair', "type" | "question" | "answer" | "explanation">;
+    
+    QuestionAnswerWithExplanationSlice: ClassViewer<'QuestionAnswerWithExplanationSlice', "type" | "question_range" | "answer_range" | "answer">;
     
     QuizAnalysis: ClassViewer<'QuizAnalysis', "point" | "discuss" | "ai_analysis" | "link">;
     
@@ -57,7 +59,7 @@ export default class TypeBuilder {
     constructor() {
         this.tb = new _TypeBuilder({
           classes: new Set([
-            "A1Quiz","A2Quiz","A3PreQuiz","BPreQuiz","BasicQuiz","ContentSlice","QAunit","QAunitForB","QuestionAnswerPair","QuestionAnswerSlice","QuestionAnswerWithAnalysisSlice","QuizAnalysis","QuizOptions","Resume","SplitText",
+            "A1Quiz","A2Quiz","A3PreQuiz","BPreQuiz","BasicQuiz","ContentSlice","QAunit","QAunitForB","QuestionAnswerPair","QuestionAnswerSlice","QuestionAnswerWithExplanationPair","QuestionAnswerWithExplanationSlice","QuizAnalysis","QuizOptions","Resume","SplitText",
           ]),
           enums: new Set([
             
@@ -74,15 +76,15 @@ export default class TypeBuilder {
         ]);
         
         this.A3PreQuiz = this.tb.classViewer("A3PreQuiz", [
-          "mainQuestion","subQuestion",
+          "mainQuestion","subQuestion","explanation",
         ]);
         
         this.BPreQuiz = this.tb.classViewer("BPreQuiz", [
-          "shared_options","questions",
+          "shared_options","questions","explanation",
         ]);
         
         this.BasicQuiz = this.tb.classViewer("BasicQuiz", [
-          "type","question","options","answer",
+          "type","question","options","answer","explanation",
         ]);
         
         this.ContentSlice = this.tb.classViewer("ContentSlice", [
@@ -98,14 +100,18 @@ export default class TypeBuilder {
         ]);
         
         this.QuestionAnswerPair = this.tb.classViewer("QuestionAnswerPair", [
-          "question","answer","type",
+          "type","question","answer",
         ]);
         
         this.QuestionAnswerSlice = this.tb.classViewer("QuestionAnswerSlice", [
           "type","question_range","answer",
         ]);
         
-        this.QuestionAnswerWithAnalysisSlice = this.tb.classViewer("QuestionAnswerWithAnalysisSlice", [
+        this.QuestionAnswerWithExplanationPair = this.tb.classViewer("QuestionAnswerWithExplanationPair", [
+          "type","question","answer","explanation",
+        ]);
+        
+        this.QuestionAnswerWithExplanationSlice = this.tb.classViewer("QuestionAnswerWithExplanationSlice", [
           "type","question_range","answer_range","answer",
         ]);
         

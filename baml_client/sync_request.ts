@@ -19,7 +19,7 @@ import type { BamlRuntime, BamlCtxManager, ClientRegistry, Image, Audio } from "
 import { toBamlError, HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
 import type * as types from "./types"
-import type {A1Quiz, A2Quiz, A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithAnalysisSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
+import type {A1Quiz, A2Quiz, A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
 import type TypeBuilder from "./type_builder"
 
 type BamlCallOptions = {
@@ -55,7 +55,7 @@ export class HttpRequest {
   }
   
   ConvertToA3Quiz(
-      question: string,answer: string,
+      question: string,answer: string,explanation?: string | null,
       __baml_options__?: BamlCallOptions
   ): HTTPRequest {
     try {
@@ -63,7 +63,7 @@ export class HttpRequest {
       return this.runtime.buildRequestSync(
         "ConvertToA3Quiz",
         {
-          "question": question,"answer": answer
+          "question": question,"answer": answer,"explanation": explanation?? null
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -77,7 +77,7 @@ export class HttpRequest {
   }
   
   ConvertToBQuiz(
-      question: string,answer: string,
+      question: string,answer: string,explanation?: string | null,
       __baml_options__?: BamlCallOptions
   ): HTTPRequest {
     try {
@@ -85,7 +85,7 @@ export class HttpRequest {
       return this.runtime.buildRequestSync(
         "ConvertToBQuiz",
         {
-          "question": question,"answer": answer
+          "question": question,"answer": answer,"explanation": explanation?? null
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -99,7 +99,7 @@ export class HttpRequest {
   }
   
   ConvertToBasicQuiz(
-      question: string,answer: string,
+      question: string,answer: string,explanation?: string | null,
       __baml_options__?: BamlCallOptions
   ): HTTPRequest {
     try {
@@ -107,7 +107,7 @@ export class HttpRequest {
       return this.runtime.buildRequestSync(
         "ConvertToBasicQuiz",
         {
-          "question": question,"answer": answer
+          "question": question,"answer": answer,"explanation": explanation?? null
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -150,6 +150,28 @@ export class HttpRequest {
       const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
       return this.runtime.buildRequestSync(
         "MatchQuestionsAnswers",
+        {
+          "input": input
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        false,
+        env,
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  MatchQuestionsAnswersWithExplanation(
+      input: SplitText,
+      __baml_options__?: BamlCallOptions
+  ): HTTPRequest {
+    try {
+      const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      return this.runtime.buildRequestSync(
+        "MatchQuestionsAnswersWithExplanation",
         {
           "input": input
         },
@@ -215,7 +237,7 @@ export class HttpStreamRequest {
   }
   
   ConvertToA3Quiz(
-      question: string,answer: string,
+      question: string,answer: string,explanation?: string | null,
       __baml_options__?: BamlCallOptions
   ): HTTPRequest {
     try {
@@ -223,7 +245,7 @@ export class HttpStreamRequest {
       return this.runtime.buildRequestSync(
         "ConvertToA3Quiz",
         {
-          "question": question,"answer": answer
+          "question": question,"answer": answer,"explanation": explanation?? null
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -237,7 +259,7 @@ export class HttpStreamRequest {
   }
   
   ConvertToBQuiz(
-      question: string,answer: string,
+      question: string,answer: string,explanation?: string | null,
       __baml_options__?: BamlCallOptions
   ): HTTPRequest {
     try {
@@ -245,7 +267,7 @@ export class HttpStreamRequest {
       return this.runtime.buildRequestSync(
         "ConvertToBQuiz",
         {
-          "question": question,"answer": answer
+          "question": question,"answer": answer,"explanation": explanation?? null
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -259,7 +281,7 @@ export class HttpStreamRequest {
   }
   
   ConvertToBasicQuiz(
-      question: string,answer: string,
+      question: string,answer: string,explanation?: string | null,
       __baml_options__?: BamlCallOptions
   ): HTTPRequest {
     try {
@@ -267,7 +289,7 @@ export class HttpStreamRequest {
       return this.runtime.buildRequestSync(
         "ConvertToBasicQuiz",
         {
-          "question": question,"answer": answer
+          "question": question,"answer": answer,"explanation": explanation?? null
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -310,6 +332,28 @@ export class HttpStreamRequest {
       const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
       return this.runtime.buildRequestSync(
         "MatchQuestionsAnswers",
+        {
+          "input": input
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        true,
+        env,
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  MatchQuestionsAnswersWithExplanation(
+      input: SplitText,
+      __baml_options__?: BamlCallOptions
+  ): HTTPRequest {
+    try {
+      const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      return this.runtime.buildRequestSync(
+        "MatchQuestionsAnswersWithExplanation",
         {
           "input": input
         },

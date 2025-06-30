@@ -20,7 +20,7 @@ import { toBamlError } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
 import type { partial_types } from "./partial_types"
 import type * as types from "./types"
-import type {A1Quiz, A2Quiz, A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithAnalysisSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
+import type {A1Quiz, A2Quiz, A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
 import type TypeBuilder from "./type_builder"
 
 export class LlmResponseParser {
@@ -142,6 +142,26 @@ export class LlmResponseParser {
         __baml_options__?.clientRegistry,
         env,
       ) as QuestionAnswerSlice[]
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  MatchQuestionsAnswersWithExplanation(
+      llmResponse: string,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry }
+  ): QuestionAnswerWithExplanationSlice[] {
+    try {
+      const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      return this.runtime.parseLlmResponse(
+        "MatchQuestionsAnswersWithExplanation",
+        llmResponse,
+        false,
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        env,
+      ) as QuestionAnswerWithExplanationSlice[]
     } catch (error) {
       throw toBamlError(error);
     }
@@ -288,6 +308,26 @@ export class LlmStreamParser {
         __baml_options__?.clientRegistry,
         env,
       ) as (partial_types.QuestionAnswerSlice | null)[]
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  MatchQuestionsAnswersWithExplanation(
+      llmResponse: string,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry }
+  ): (partial_types.QuestionAnswerWithExplanationSlice | null)[] {
+    try {
+      const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      return this.runtime.parseLlmResponse(
+        "MatchQuestionsAnswersWithExplanation",
+        llmResponse,
+        true,
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        env,
+      ) as (partial_types.QuestionAnswerWithExplanationSlice | null)[]
     } catch (error) {
       throw toBamlError(error);
     }

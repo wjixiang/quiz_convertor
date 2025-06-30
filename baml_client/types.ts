@@ -75,12 +75,14 @@ export interface A2Quiz {
 export interface A3PreQuiz {
   mainQuestion: string
   subQuestion: QAunit[]
+  explanation?: string | null
   
 }
 
 export interface BPreQuiz {
   shared_options: QuizOptions[]
   questions: QAunitForB[]
+  explanation?: string | null
   
 }
 
@@ -89,6 +91,7 @@ export interface BasicQuiz {
   question: string
   options: string[]
   answer: string
+  explanation?: string | null
   
 }
 
@@ -112,9 +115,9 @@ export interface QAunitForB {
 }
 
 export interface QuestionAnswerPair {
+  type: "single" | "multiple" | "share_question" | "share_option"
   question: string
   answer: string
-  type: "single" | "multiple" | "share_question" | "share_option"
   
 }
 
@@ -125,10 +128,18 @@ export interface QuestionAnswerSlice {
   
 }
 
-export interface QuestionAnswerWithAnalysisSlice {
+export interface QuestionAnswerWithExplanationPair {
+  type: "single" | "multiple" | "share_question" | "share_option"
+  question: string
+  answer: string
+  explanation: string
+  
+}
+
+export interface QuestionAnswerWithExplanationSlice {
   type: "single" | "multiple" | "share_question" | "share_option"
   question_range: number[]
-  answer_range: string
+  answer_range: number[]
   answer: string
   
 }

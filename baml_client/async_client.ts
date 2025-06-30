@@ -20,7 +20,7 @@ import { toBamlError, BamlStream, type HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type { partial_types } from "./partial_types"
 import type * as types from "./types"
-import type {A1Quiz, A2Quiz, A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithAnalysisSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
+import type {A1Quiz, A2Quiz, A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
 import type TypeBuilder from "./type_builder"
 import { AsyncHttpRequest, AsyncHttpStreamRequest } from "./async_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -110,7 +110,7 @@ export class BamlAsyncClient {
   }
   
   async ConvertToA3Quiz(
-      question: string,answer: string,
+      question: string,answer: string,explanation?: string | null,
       __baml_options__?: BamlCallOptions
   ): Promise<A3PreQuiz> {
     try {
@@ -120,7 +120,7 @@ export class BamlAsyncClient {
       const raw = await this.runtime.callFunction(
         "ConvertToA3Quiz",
         {
-          "question": question,"answer": answer
+          "question": question,"answer": answer,"explanation": explanation?? null
         },
         this.ctxManager.cloneContext(),
         options.tb?.__tb(),
@@ -135,7 +135,7 @@ export class BamlAsyncClient {
   }
   
   async ConvertToBQuiz(
-      question: string,answer: string,
+      question: string,answer: string,explanation?: string | null,
       __baml_options__?: BamlCallOptions
   ): Promise<BPreQuiz> {
     try {
@@ -145,7 +145,7 @@ export class BamlAsyncClient {
       const raw = await this.runtime.callFunction(
         "ConvertToBQuiz",
         {
-          "question": question,"answer": answer
+          "question": question,"answer": answer,"explanation": explanation?? null
         },
         this.ctxManager.cloneContext(),
         options.tb?.__tb(),
@@ -160,7 +160,7 @@ export class BamlAsyncClient {
   }
   
   async ConvertToBasicQuiz(
-      question: string,answer: string,
+      question: string,answer: string,explanation?: string | null,
       __baml_options__?: BamlCallOptions
   ): Promise<BasicQuiz> {
     try {
@@ -170,7 +170,7 @@ export class BamlAsyncClient {
       const raw = await this.runtime.callFunction(
         "ConvertToBasicQuiz",
         {
-          "question": question,"answer": answer
+          "question": question,"answer": answer,"explanation": explanation?? null
         },
         this.ctxManager.cloneContext(),
         options.tb?.__tb(),
@@ -229,6 +229,31 @@ export class BamlAsyncClient {
         env,
       )
       return raw.parsed(false) as QuestionAnswerSlice[]
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async MatchQuestionsAnswersWithExplanation(
+      input: SplitText,
+      __baml_options__?: BamlCallOptions
+  ): Promise<QuestionAnswerWithExplanationSlice[]> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
+      const raw = await this.runtime.callFunction(
+        "MatchQuestionsAnswersWithExplanation",
+        {
+          "input": input
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as QuestionAnswerWithExplanationSlice[]
     } catch (error) {
       throw toBamlError(error);
     }
@@ -305,7 +330,7 @@ class BamlStreamClient {
   }
   
   ConvertToA3Quiz(
-      question: string,answer: string,
+      question: string,answer: string,explanation?: string | null,
       __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
   ): BamlStream<partial_types.A3PreQuiz, A3PreQuiz> {
     try {
@@ -315,7 +340,7 @@ class BamlStreamClient {
       const raw = this.runtime.streamFunction(
         "ConvertToA3Quiz",
         {
-          "question": question,"answer": answer
+          "question": question,"answer": answer,"explanation": explanation ?? null
         },
         undefined,
         this.ctxManager.cloneContext(),
@@ -336,7 +361,7 @@ class BamlStreamClient {
   }
   
   ConvertToBQuiz(
-      question: string,answer: string,
+      question: string,answer: string,explanation?: string | null,
       __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
   ): BamlStream<partial_types.BPreQuiz, BPreQuiz> {
     try {
@@ -346,7 +371,7 @@ class BamlStreamClient {
       const raw = this.runtime.streamFunction(
         "ConvertToBQuiz",
         {
-          "question": question,"answer": answer
+          "question": question,"answer": answer,"explanation": explanation ?? null
         },
         undefined,
         this.ctxManager.cloneContext(),
@@ -367,7 +392,7 @@ class BamlStreamClient {
   }
   
   ConvertToBasicQuiz(
-      question: string,answer: string,
+      question: string,answer: string,explanation?: string | null,
       __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
   ): BamlStream<partial_types.BasicQuiz, BasicQuiz> {
     try {
@@ -377,7 +402,7 @@ class BamlStreamClient {
       const raw = this.runtime.streamFunction(
         "ConvertToBasicQuiz",
         {
-          "question": question,"answer": answer
+          "question": question,"answer": answer,"explanation": explanation ?? null
         },
         undefined,
         this.ctxManager.cloneContext(),
@@ -452,6 +477,37 @@ class BamlStreamClient {
         raw,
         (a): (partial_types.QuestionAnswerSlice | null)[] => a,
         (a): QuestionAnswerSlice[] => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  MatchQuestionsAnswersWithExplanation(
+      input: SplitText,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
+  ): BamlStream<(partial_types.QuestionAnswerWithExplanationSlice | null)[], QuestionAnswerWithExplanationSlice[]> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
+      const raw = this.runtime.streamFunction(
+        "MatchQuestionsAnswersWithExplanation",
+        {
+          "input": input
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return new BamlStream<(partial_types.QuestionAnswerWithExplanationSlice | null)[], QuestionAnswerWithExplanationSlice[]>(
+        raw,
+        (a): (partial_types.QuestionAnswerWithExplanationSlice | null)[] => a,
+        (a): QuestionAnswerWithExplanationSlice[] => a,
         this.ctxManager.cloneContext(),
       )
     } catch (error) {
