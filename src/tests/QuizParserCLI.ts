@@ -16,10 +16,12 @@ async function runTest() {
   const parser = new QuizParser(quesiton, answer);
   
   try {
-    const result = await parser.parse({
-      // class: '外科学',
+    let result = await parser.parse({
+      class: '内科学',
       // unit: '急性中毒专项测试',
-      source: '2025医考帮外科单科模考2',
+      source: '西综真题',
+      tags: ["2010"]
+      // extractedYear: 
       // type: "A1"
     }, false);
     

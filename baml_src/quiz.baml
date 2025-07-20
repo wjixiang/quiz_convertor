@@ -229,7 +229,7 @@ class SplitText {
 }
 
 function MatchQuestionsAnswers(input: SplitText) -> QuestionAnswerSlice[] {
-  client GeminiFlashOpenrouter
+  client Kimi
   prompt #"
     {{_.role("user")}}
     Match the following questions and answers using the split point markers.
@@ -287,7 +287,7 @@ function MatchQuestionsAnswers(input: SplitText) -> QuestionAnswerSlice[] {
 }
 
 function MatchQuestionsAnswersWithExplanation(input: SplitText) -> QuestionAnswerWithExplanationSlice[] {
-  client GeminiFlashOpenrouter
+  client Kimi
   prompt #"
     {{_.role("user")}}
     Match the following questions and answers using the split point markers.

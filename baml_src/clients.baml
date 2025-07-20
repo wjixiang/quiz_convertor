@@ -34,3 +34,13 @@ client<llm> GeminiFlashOpenrouter {
     base_url "https://openrouter.ai/api/v1"
   }
 }
+
+client<llm> Kimi {
+  provider openai-generic
+  options {
+    model "kimi-k2-0711-preview"
+    api_key env.KIMI_API_KEY
+    base_url "https://api.moonshot.cn/v1"
+  }
+}
+
