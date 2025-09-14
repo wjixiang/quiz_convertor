@@ -8,6 +8,7 @@ client<llm> GLM4Plus {
   }
 }
 
+
 client<llm> QiniuDeepseekV3 {
   provider openai-generic
   options {
@@ -38,7 +39,7 @@ client<llm> GeminiFlashOpenrouter {
 client<llm> Kimi {
   provider openai-generic
   options {
-    model "kimi-k2-0711-preview"
+    model "kimi-k2-0905-preview"
     api_key env.KIMI_API_KEY
     base_url "https://api.moonshot.cn/v1"
   }

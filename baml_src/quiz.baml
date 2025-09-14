@@ -116,7 +116,7 @@ class A2Quiz {
 }
 
 function SplitQuestions(questions_text: string) -> string[] {
-  client GLM4Plus
+  client QiniuDeepseekV3
   prompt #"
     {{_.role("user")}}
     Split the following text into individual questions. The text may contain:
@@ -134,7 +134,7 @@ function SplitQuestions(questions_text: string) -> string[] {
 }
 
 function ConvertToA1(question: string, answer: string) -> A1Quiz {
-  client GLM4Plus
+  client QiniuDeepseekV3
   prompt #"
     {{_.role("user")}}
     Convert the following question and answer into a structured multiple choice quiz (A1 type):
@@ -147,12 +147,13 @@ function ConvertToA1(question: string, answer: string) -> A1Quiz {
     
     Requirements:
     - Include analysis with key points and discussion
-    - Format as valid JSON matching this schema: {{ ctx.output_format }}
+    - 修正OCR识别的文字错误
+    {{ ctx.output_format }}
   "#
 }
 
 function ConvertToBasicQuiz(question: string, answer: string, explanation: string?) -> BasicQuiz {
-  client GLM4Plus
+  client QiniuDeepseekV3
   prompt #"
     {{_.role("user")}}
     Convert the following question and answer into a simple multiple choice quiz (BasicQuiz type):
@@ -170,13 +171,14 @@ function ConvertToBasicQuiz(question: string, answer: string, explanation: strin
     - Specify type as "single" or "multiple" based on answer format
     - Return only the JSON object, nothing else
     - 答案必须是选项对应的大写字母标号
-    - Format as valid JSON matching this schema: 
+    - 修正OCR识别的文字错误
+    
     {{ ctx.output_format }}
   "#
 }
 
 function ConvertToA3Quiz(question: string, answer: string, explanation: string?) -> A3PreQuiz {
-  client GLM4Plus
+  client QiniuDeepseekV3
   prompt #"
     {{_.role("user")}}
     Convert the following question and answer into a quiz group including multiple questions:
@@ -194,13 +196,14 @@ function ConvertToA3Quiz(question: string, answer: string, explanation: string?)
     - Specify type as "single" or "multiple" based on answer format
     - Return only the JSON object, nothing else
     - 答案必须是选项对应的大写字母标号
+    - 修正OCR识别的文字错误
 
     {{ ctx.output_format }}
   "#
 }
 
 function ConvertToBQuiz(question: string, answer: string, explanation: string?) -> BPreQuiz {
-  client GLM4Plus
+  client QiniuDeepseekV3
   prompt #"
     {{_.role("user")}}
     Convert the following question and answer into a group of quizzes shared shared same options:
@@ -218,6 +221,7 @@ function ConvertToBQuiz(question: string, answer: string, explanation: string?) 
     - Specify type as "single" or "multiple" based on answer format
     - Return only the JSON object, nothing else
     - 答案必须是选项对应的大写字母标号
+    - 修正OCR识别的文字错误
 
     {{ ctx.output_format }}
   "#

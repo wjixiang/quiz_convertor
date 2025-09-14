@@ -419,6 +419,7 @@ export class QuizParser {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.log(`failed quiz: ${JSON.stringify(quizData)}`)
         throw new Error(errorData.message || 'Failed to add quiz');
       }
 

@@ -83,6 +83,7 @@ export interface B {
     analysis: analysis;
     source: string;
     surrealRecordId?: RecordId;
+    extractedYear?: string;
 }
 
 export type quiz = A1|A2|A3|B|X
