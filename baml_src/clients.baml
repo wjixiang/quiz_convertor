@@ -7,6 +7,37 @@ client<llm> GLM4Plus {
     retry_policy GLMRetry
   }
 }
+client<llm> GLM45Flash {
+  provider openai-generic
+  options {
+    model "glm-4.5-flash"
+    api_key env.GLM_API_KEY
+    base_url "https://open.bigmodel.cn/api/paas/v4"
+    retry_policy GLMRetry
+  }
+}
+
+client<llm> GLM45Air {
+  provider openai-generic
+  options {
+    model "glm-4.5-air"
+    api_key env.GLM_API_KEY
+    base_url "https://open.bigmodel.cn/api/paas/v4"
+    retry_policy GLMRetry
+  }
+}
+
+client<llm> GLM46 {
+  provider openai-generic
+  options {
+    model "glm-4.6"
+    api_key env.GLM_API_KEY
+    base_url "https://open.bigmodel.cn/api/paas/v4"
+    retry_policy GLMRetry
+  }
+}
+
+
 
 
 client<llm> QiniuDeepseekV3 {

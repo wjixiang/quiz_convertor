@@ -15,9 +15,9 @@ class QuestionAnswerWithExplanationPair {
 class QuestionAnswerSlice {
   type "single" | "multiple" | "share_question" | "share_option"
   question_range int[]
-  /// The correct answer(s) as option letters:
-  /// - Single choice: "A", "B", etc.
-  /// - Multiple choice: "AB", "ACD", etc. (any combination of A-E)
+  /// 正确答案的选项字母：
+  /// - 单选题："A", "B", 等
+  /// - 多选题："AB", "ACD", 等 (A-E的任意组合)
   answer string
 }
 
@@ -26,9 +26,9 @@ class QuestionAnswerWithExplanationSlice {
   question_range int[]
   answer_range int[]
   answer string @description(#"
-    The correct answer(s) as option letters:
-    - Single choice: "A", "B", etc.
-    - Multiple choice: "AB", "ACD", etc. (any combination of A-E)
+    正确答案的选项字母：
+    - 单选题："A", "B", 等
+    - 多选题："AB", "ACD", 等 (A-E的任意组合)
   "#)
 }
 
@@ -56,7 +56,7 @@ class BasicQuiz {
   options string[]
   answer string
   explanation string? @description(#"
-    optional: if input content don't have this content, skip this field
+    可选：如果输入内容没有这部分内容，请跳过此字段
   "#)
 }
 
@@ -64,14 +64,14 @@ class QAunit {
   question string
   options QuizOptions[]
   answer string @description(#"
-    Must be one of "A" | "B" | "C" | "D" | "E"
+    必须是 "A" | "B" | "C" | "D" | "E" 中的一个
   "#)
 }
 
 class QAunitForB {
   question string
   answer string @description(#"
-    Must be one of "A" | "B" | "C" | "D" | "E"
+    必须是 "A" | "B" | "C" | "D" | "E" 中的一个
   "#)
 }
 
@@ -79,7 +79,7 @@ class A3PreQuiz {
   mainQuestion string
   subQuestion QAunit[]
   explanation string? @description(#"
-    optional: if input content don't have this content, skip this field
+    可选：如果输入内容没有这部分内容，请跳过此字段
   "#)
 }
 
@@ -87,89 +87,72 @@ class BPreQuiz {
   shared_options QuizOptions[]
   questions QAunitForB[]
   explanation string? @description(#"
-    optional: if input content don't have this content, skip this field
+    可选：如果输入内容没有这部分内容，请跳过此字段
   "#)
 }
 
-class A1Quiz {
-  type "A1"
-  class string
-  unit string
-  tags string[]
-  question string
-  options QuizOptions[]
-  answer "A"|"B"|"C"|"D"|"E"
-  analysis QuizAnalysis
-  source string
-}
+// class A1Quiz {
+//   type "A1"
+//   class string
+//   unit string
+//   tags string[]
+//   question string
+//   options QuizOptions[]
+//   answer "A"|"B"|"C"|"D"|"E"
+//   analysis QuizAnalysis
+//   source string
+// }
 
-class A2Quiz {
-  type "A2"
-  class string
-  unit string
-  tags string[]
-  question string
-  options QuizOptions[]
-  answer "A"|"B"|"C"|"D"|"E"
-  analysis QuizAnalysis
-  source string
-}
+// class A2Quiz {
+//   type "A2"
+//   class string
+//   unit string
+//   tags string[]
+//   question string
+//   options QuizOptions[]
+//   answer "A"|"B"|"C"|"D"|"E"
+//   analysis QuizAnalysis
+//   source string
+// }
 
 function SplitQuestions(questions_text: string) -> string[] {
-  client QiniuDeepseekV3
+  client GLM45Air
   prompt #"
     {{_.role("user")}}
-    Split the following text into individual questions. The text may contain:
-    - Numbered questions (1., 2., etc)
-    - Bullet points
-    - Blank lines between questions
-    - Other separators
+    将以下文本分割成单独的问题。文本可能包含：
+    - 编号问题（1., 2., 等）
+    - 项目符号
+    - 问题之间的空行
+    - 其他分隔符
     
-    Text to split:
+    要分割的文本：
     {{ questions_text }}
     
-    Return a JSON array where each element is a complete question text.
-    Only return the array, nothing else.
+    返回一个JSON数组，其中每个元素是一个完整的问题文本。
+    只返回数组，不要返回其他内容。
   "#
 }
 
-function ConvertToA1(question: string, answer: string) -> A1Quiz {
-  client QiniuDeepseekV3
-  prompt #"
-    {{_.role("user")}}
-    Convert the following question and answer into a structured multiple choice quiz (A1 type):
-    
-    Question:
-    {{ question }}
-    
-    Answer:
-    {{ answer }}
-    
-    Requirements:
-    - Include analysis with key points and discussion
-    - 修正OCR识别的文字错误
-    {{ ctx.output_format }}
-  "#
-}
+
 
 function ConvertToBasicQuiz(question: string, answer: string, explanation: string?) -> BasicQuiz {
-  client QiniuDeepseekV3
+  client GLM45Air
   prompt #"
     {{_.role("user")}}
-    Convert the following question and answer into a simple multiple choice quiz (BasicQuiz type):
+    将以下问题和答案转换为简单的选择题（BasicQuiz类型）：
     
-    Question:
+    问题：
     {{ question }}
     
-    Answer:
+    答案：
     {{ answer }}
 
-    Explanation:
+    解释：
     {{ explanation }}
     
-    Requirements:
-    - Specify type as "single" or "multiple" based on answer format
-    - Return only the JSON object, nothing else
+    要求：
+    - 根据答案格式将类型指定为"single"或"multiple"
+    - 只返回JSON对象，不要返回其他内容
     - 答案必须是选项对应的大写字母标号
     - 修正OCR识别的文字错误
     
@@ -178,23 +161,23 @@ function ConvertToBasicQuiz(question: string, answer: string, explanation: strin
 }
 
 function ConvertToA3Quiz(question: string, answer: string, explanation: string?) -> A3PreQuiz {
-  client QiniuDeepseekV3
+  client GLM45Air
   prompt #"
     {{_.role("user")}}
-    Convert the following question and answer into a quiz group including multiple questions:
+    将以下问题和答案转换为包含多个问题的题组：
     
-    Question:
+    问题：
     {{ question }}
     
-    Answer:
+    答案：
     {{ answer }}
 
-    Explanation:
+    解释：
     {{ explanation }}
     
-    Requirements:
-    - Specify type as "single" or "multiple" based on answer format
-    - Return only the JSON object, nothing else
+    要求：
+    - 根据答案格式将类型指定为"single"或"multiple"
+    - 只返回JSON对象，不要返回其他内容
     - 答案必须是选项对应的大写字母标号
     - 修正OCR识别的文字错误
 
@@ -203,23 +186,23 @@ function ConvertToA3Quiz(question: string, answer: string, explanation: string?)
 }
 
 function ConvertToBQuiz(question: string, answer: string, explanation: string?) -> BPreQuiz {
-  client QiniuDeepseekV3
+  client GLM45Air
   prompt #"
     {{_.role("user")}}
-    Convert the following question and answer into a group of quizzes shared shared same options:
+    将以下问题和答案转换为共享相同选项的题组：
     
-    Question:
+    问题：
     {{ question }}
     
-    Answer:
+    答案：
     {{ answer }}
 
-    Explanation:
+    解释：
     {{ explanation }}
     
-    Requirements:
-    - Specify type as "single" or "multiple" based on answer format
-    - Return only the JSON object, nothing else
+    要求：
+    - 根据答案格式将类型指定为"single"或"multiple"
+    - 只返回JSON对象，不要返回其他内容
     - 答案必须是选项对应的大写字母标号
     - 修正OCR识别的文字错误
 
@@ -233,27 +216,27 @@ class SplitText {
 }
 
 function MatchQuestionsAnswers(input: SplitText) -> QuestionAnswerSlice[] {
-  client Kimi
+  client GLM46
   prompt #"
     {{_.role("user")}}
-    Match the following questions and answers using the split point markers.
+    使用分割点标记匹配以下问题和答案。
 
-    ---INSTRUCTION---
-    Return a JSON array where each element is an object with:
-    - type: the type of quiz, must be one of the "single" | "multiple" | "share_question" | "share_option"
-    - question_range: [start_index, end_index] of the question
-    - answer: The correct option letter(s) (A/B/C/D/E) for this question
-      - For single-choice questions: "A", "B", etc. (one letter)
-      - For multiple-choice questions: "AB", "ACD", etc. (any combination of letters)
-      - For share_question questions: 
-        - question_range have to cover the whole group of questions. This kind of questions always with indications such as "A3", "A3型题", "共用题干".
-        - show answers for each subquestion with proper index: "1.A 2.B 3.C etc."
-      - For share_option questions:
-        - question_range have to cover the whole group of questions. This kind of questions always with indications such as "B", "B型题", "共用选项"
-        - show answers for each subquestion with proper index: "1.A 2.B 3.C etc."
-      - Ensure all letters are uppercase and in alphabetical order (e.g. "ABD" not "BAD")
+    ---指令---
+    返回一个JSON数组，其中每个元素是一个包含以下内容的对象：
+    - type: 题目类型，必须是 "single" | "multiple" | "share_question" | "share_option" 中的一个
+    - question_range: 问题的 [起始索引, 结束索引]
+    - answer: 该题的正确选项字母 (A/B/C/D/E)
+      - 单选题："A", "B", 等 (一个字母)
+      - 多选题："AB", "ACD", 等 (字母的任意组合)
+      - 共用题干题 (share_question)：
+        - question_range 必须覆盖整个问题组。这类题目通常有 "A3", "A3型题", "共用题干" 等标识。
+        - 用正确的索引显示每个子问题的答案："1.A 2.B 3.C 等"
+      - 共用选项题 (share_option)：
+        - question_range 必须覆盖整个问题组。这类题目通常有 "B", "B型题", "共用选项" 等标识。
+        - 用正确的索引显示每个子问题的答案："1.A 2.B 3.C 等"
+      - 确保所有字母都是大写并按字母顺序排列 (例如 "ABD" 而不是 "BAD")
     
-    ---EXAMPLE: share_question question---
+    ---示例：共用题干题---
     (78~80题共用题干)男性，62岁。近3个月消瘦、乏力，有上腹胀痛，近1个月出现巩膜及周身黄染，进行性加重，1周前出现大便灰白，尿色深，周身瘙痒，轻度贫血。
     78.病史中哪项对考虑梗阻性黄疸最有意义
     A.贫血 B.尿色深 C.瘙痒
@@ -267,53 +250,53 @@ function MatchQuestionsAnswers(input: SplitText) -> QuestionAnswerSlice[] {
     A. CT B. PTC C. PTCD
     D. ERCP E.十二指肠低张造影
 
-    ---EXAMPLE: share_option question---
+    ---示例：共用选项题---
     A.良性肿瘤 B.恶性肿瘤 C.潜在恶性肿瘤
     D.瘤样病损 E.转移性骨肿瘤
     72.骨样骨瘤属于
     73.骨巨细胞瘤属于
     74.脊索瘤属于
 
-    ---rules---
-    Match questions to answers by their position in the split points arrays.
-    Convert answer text to corresponding option letters.
-    Only return the array, nothing else.
-    Only return complete quiz that question and answer both existed.
-    Must ensure content of question/option/answer same with input text.
+    ---规则---
+    根据问题在分割点数组中的位置匹配问题和答案。
+    将答案文本转换为相应的选项字母。
+    只返回数组，不要返回其他内容。
+    只返回问题和答案都存在的完整题目。
+    必须确保问题/选项/答案的内容与输入文本相同。
 
-    ---TASK---
-    Questions (with split markers):
+    ---任务---
+    问题（带分割标记）：
     {{ input.questions }}
     
-    Answers (with split markers):
+    答案（带分割标记）：
     {{ input.answers }}
   "#
 }
 
 function MatchQuestionsAnswersWithExplanation(input: SplitText) -> QuestionAnswerWithExplanationSlice[] {
-  client Kimi
+  client GLM46
   prompt #"
     {{_.role("user")}}
-    Match the following questions and answers using the split point markers.
+    使用分割点标记匹配以下问题和答案。
 
-    ---INSTRUCTION---
-    Return a JSON array where each element is an object with:
-    - type: the type of quiz, must be one of the "single" | "multiple" | "share_question" | "share_option"
-    - question_range: [start_index, end_index] of the question
-    - answer_range: [start_index, end_index] of the explanation
-    - answer: The correct option letter(s) (A/B/C/D/E) for this question
-      - For single-choice questions: "A", "B", etc. (one letter)
-      - For multiple-choice questions: "AB", "ACD", etc. (any combination of letters)
-      - For share_question questions: 
-        - question_range have to cover the whole group of questions. This kind of questions always with indications such as "A3", "A3型题", "共用题干".
-        - show answers for each subquestion with proper index: "1.A 2.B 3.C etc."
-      - For share_option questions:
-        - question_range have to cover the whole group of questions. This kind of questions always with indications such as "B", "B型题", "共用选项"
-        - show answers for each subquestion with proper index: "1.A 2.B 3.C etc."
-      - Ensure all letters are uppercase and in alphabetical order (e.g. "ABD" not "BAD")
+    ---指令---
+    返回一个JSON数组，其中每个元素是一个包含以下内容的对象：
+    - type: 题目类型，必须是 "single" | "multiple" | "share_question" | "share_option" 中的一个
+    - question_range: 问题的 [起始索引, 结束索引]
+    - answer_range: 解释的 [起始索引, 结束索引]
+    - answer: 该题的正确选项字母 (A/B/C/D/E)
+      - 单选题："A", "B", 等 (一个字母)
+      - 多选题："AB", "ACD", 等 (字母的任意组合)
+      - 共用题干题 (share_question)：
+        - question_range 必须覆盖整个问题组。这类题目通常有 "A3", "A3型题", "共用题干" 等标识。
+        - 用正确的索引显示每个子问题的答案："1.A 2.B 3.C 等"
+      - 共用选项题 (share_option)：
+        - question_range 必须覆盖整个问题组。这类题目通常有 "B", "B型题", "共用选项" 等标识。
+        - 用正确的索引显示每个子问题的答案："1.A 2.B 3.C 等"
+      - 确保所有字母都是大写并按字母顺序排列 (例如 "ABD" 而不是 "BAD")
 
     
-    ---EXAMPLE: share_question question---
+    ---示例：共用题干题---
     (78~80题共用题干)男性，62岁。近3个月消瘦、乏力，有上腹胀痛，近1个月出现巩膜及周身黄染，进行性加重，1周前出现大便灰白，尿色深，周身瘙痒，轻度贫血。
     78.病史中哪项对考虑梗阻性黄疸最有意义
     A.贫血 B.尿色深 C.瘙痒
@@ -327,33 +310,26 @@ function MatchQuestionsAnswersWithExplanation(input: SplitText) -> QuestionAnswe
     A. CT B. PTC C. PTCD
     D. ERCP E.十二指肠低张造影
 
-    ---EXAMPLE: share_option question---
+    ---示例：共用选项题---
     A.良性肿瘤 B.恶性肿瘤 C.潜在恶性肿瘤
     D.瘤样病损 E.转移性骨肿瘤
     72.骨样骨瘤属于
     73.骨巨细胞瘤属于
     74.脊索瘤属于
 
-    ---rules---
-    Match questions to answers by their position in the split points arrays.
-    Convert answer text to corresponding option letters.
-    Only return the array, nothing else.
-    Only return complete quiz that question and answer both existed.
-    Must ensure content of question/option/answer same with input text.
+    ---规则---
+    根据问题在分割点数组中的位置匹配问题和答案。
+    将答案文本转换为相应的选项字母。
+    只返回数组，不要返回其他内容。
+    只返回问题和答案都存在的完整题目。
+    必须确保问题/选项/答案的内容与输入文本相同。
 
-    ---TASK---
-    Questions (with split markers):
+    ---任务---
+    问题（带分割标记）：
     {{ input.questions }}
     
-    Answers (with split markers):
+    答案（带分割标记）：
     {{ input.answers }}
   "#
 }
 
-test sample_quiz {
-  functions [ConvertToA1]
-  args {
-    question "What is the capital of France?"
-    answer "Paris"
-  }
-}

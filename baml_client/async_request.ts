@@ -19,7 +19,7 @@ import type { BamlRuntime, BamlCtxManager, ClientRegistry, Image, Audio } from "
 import { toBamlError, HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
 import type * as types from "./types"
-import type {A1Quiz, A2Quiz, A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
+import type {A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
 import type TypeBuilder from "./type_builder"
 
 type BamlCallOptions = {
@@ -31,28 +31,6 @@ type BamlCallOptions = {
 export class AsyncHttpRequest {
   constructor(private runtime: BamlRuntime, private ctxManager: BamlCtxManager) {}
 
-  
-  async ConvertToA1(
-      question: string,answer: string,
-      __baml_options__?: BamlCallOptions
-  ): Promise<HTTPRequest> {
-    try {
-      const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
-      return await this.runtime.buildRequest(
-        "ConvertToA1",
-        {
-          "question": question,"answer": answer
-        },
-        this.ctxManager.cloneContext(),
-        __baml_options__?.tb?.__tb(),
-        __baml_options__?.clientRegistry,
-        false,
-        env
-      )
-    } catch (error) {
-      throw toBamlError(error);
-    }
-  }
   
   async ConvertToA3Quiz(
       question: string,answer: string,explanation?: string | null,
@@ -174,6 +152,28 @@ export class AsyncHttpRequest {
         "MatchQuestionsAnswersWithExplanation",
         {
           "input": input
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        false,
+        env
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async SplitPage(
+      parsedText: string,chunkNum: number,
+      __baml_options__?: BamlCallOptions
+  ): Promise<HTTPRequest> {
+    try {
+      const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      return await this.runtime.buildRequest(
+        "SplitPage",
+        {
+          "parsedText": parsedText,"chunkNum": chunkNum
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -214,28 +214,6 @@ export class AsyncHttpStreamRequest {
   constructor(private runtime: BamlRuntime, private ctxManager: BamlCtxManager) {}
 
   
-  async ConvertToA1(
-      question: string,answer: string,
-      __baml_options__?: BamlCallOptions
-  ): Promise<HTTPRequest> {
-    try {
-      const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
-      return await this.runtime.buildRequest(
-        "ConvertToA1",
-        {
-          "question": question,"answer": answer
-        },
-        this.ctxManager.cloneContext(),
-        __baml_options__?.tb?.__tb(),
-        __baml_options__?.clientRegistry,
-        true,
-        env
-      )
-    } catch (error) {
-      throw toBamlError(error);
-    }
-  }
-  
   async ConvertToA3Quiz(
       question: string,answer: string,explanation?: string | null,
       __baml_options__?: BamlCallOptions
@@ -356,6 +334,28 @@ export class AsyncHttpStreamRequest {
         "MatchQuestionsAnswersWithExplanation",
         {
           "input": input
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        true,
+        env
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async SplitPage(
+      parsedText: string,chunkNum: number,
+      __baml_options__?: BamlCallOptions
+  ): Promise<HTTPRequest> {
+    try {
+      const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      return await this.runtime.buildRequest(
+        "SplitPage",
+        {
+          "parsedText": parsedText,"chunkNum": chunkNum
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),

@@ -19,7 +19,7 @@ import type { BamlRuntime, FunctionResult, BamlCtxManager, Image, Audio, ClientR
 import { toBamlError, type HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type * as types from "./types"
-import type {A1Quiz, A2Quiz, A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
+import type {A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
 import type TypeBuilder from "./type_builder"
 import { HttpRequest, HttpStreamRequest } from "./sync_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -85,31 +85,6 @@ export class BamlSyncClient {
     return this.llmStreamParser
   }
 
-  
-  ConvertToA1(
-      question: string,answer: string,
-      __baml_options__?: BamlCallOptions
-  ): A1Quiz {
-    try {
-      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
-      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
-      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
-      const raw = this.runtime.callFunctionSync(
-        "ConvertToA1",
-        {
-          "question": question,"answer": answer
-        },
-        this.ctxManager.cloneContext(),
-        options.tb?.__tb(),
-        options.clientRegistry,
-        collector,
-        env,
-      )
-      return raw.parsed(false) as A1Quiz
-    } catch (error: any) {
-      throw toBamlError(error);
-    }
-  }
   
   ConvertToA3Quiz(
       question: string,answer: string,explanation?: string | null,
@@ -256,6 +231,31 @@ export class BamlSyncClient {
         env,
       )
       return raw.parsed(false) as QuestionAnswerWithExplanationSlice[]
+    } catch (error: any) {
+      throw toBamlError(error);
+    }
+  }
+  
+  SplitPage(
+      parsedText: string,chunkNum: number,
+      __baml_options__?: BamlCallOptions
+  ): ContentSlice[] {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
+      const raw = this.runtime.callFunctionSync(
+        "SplitPage",
+        {
+          "parsedText": parsedText,"chunkNum": chunkNum
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as ContentSlice[]
     } catch (error: any) {
       throw toBamlError(error);
     }

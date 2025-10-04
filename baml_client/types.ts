@@ -46,32 +46,6 @@ export function all_succeeded<CheckName extends string>(checks: Record<CheckName
 export function get_checks<CheckName extends string>(checks: Record<CheckName, Check>): Check[] {
     return Object.values(checks)
 }
-export interface A1Quiz {
-  type: "A1"
-  class: string
-  unit: string
-  tags: string[]
-  question: string
-  options: QuizOptions[]
-  answer: "A" | "B" | "C" | "D" | "E"
-  analysis: QuizAnalysis
-  source: string
-  
-}
-
-export interface A2Quiz {
-  type: "A2"
-  class: string
-  unit: string
-  tags: string[]
-  question: string
-  options: QuizOptions[]
-  answer: "A" | "B" | "C" | "D" | "E"
-  analysis: QuizAnalysis
-  source: string
-  
-}
-
 export interface A3PreQuiz {
   mainQuestion: string
   subQuestion: QAunit[]

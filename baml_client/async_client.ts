@@ -20,7 +20,7 @@ import { toBamlError, BamlStream, type HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type { partial_types } from "./partial_types"
 import type * as types from "./types"
-import type {A1Quiz, A2Quiz, A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
+import type {A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
 import type TypeBuilder from "./type_builder"
 import { AsyncHttpRequest, AsyncHttpStreamRequest } from "./async_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -83,31 +83,6 @@ export class BamlAsyncClient {
     return this.llmStreamParser
   }
 
-  
-  async ConvertToA1(
-      question: string,answer: string,
-      __baml_options__?: BamlCallOptions
-  ): Promise<A1Quiz> {
-    try {
-      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
-      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
-      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
-      const raw = await this.runtime.callFunction(
-        "ConvertToA1",
-        {
-          "question": question,"answer": answer
-        },
-        this.ctxManager.cloneContext(),
-        options.tb?.__tb(),
-        options.clientRegistry,
-        collector,
-        env,
-      )
-      return raw.parsed(false) as A1Quiz
-    } catch (error) {
-      throw toBamlError(error);
-    }
-  }
   
   async ConvertToA3Quiz(
       question: string,answer: string,explanation?: string | null,
@@ -259,6 +234,31 @@ export class BamlAsyncClient {
     }
   }
   
+  async SplitPage(
+      parsedText: string,chunkNum: number,
+      __baml_options__?: BamlCallOptions
+  ): Promise<ContentSlice[]> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
+      const raw = await this.runtime.callFunction(
+        "SplitPage",
+        {
+          "parsedText": parsedText,"chunkNum": chunkNum
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as ContentSlice[]
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
   async SplitQuestions(
       questions_text: string,
       __baml_options__?: BamlCallOptions
@@ -297,37 +297,6 @@ class BamlStreamClient {
     this.bamlOptions = bamlOptions || { env: { ...process.env } }
   }
 
-  
-  ConvertToA1(
-      question: string,answer: string,
-      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
-  ): BamlStream<partial_types.A1Quiz, A1Quiz> {
-    try {
-      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
-      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
-      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
-      const raw = this.runtime.streamFunction(
-        "ConvertToA1",
-        {
-          "question": question,"answer": answer
-        },
-        undefined,
-        this.ctxManager.cloneContext(),
-        options.tb?.__tb(),
-        options.clientRegistry,
-        collector,
-        env,
-      )
-      return new BamlStream<partial_types.A1Quiz, A1Quiz>(
-        raw,
-        (a): partial_types.A1Quiz => a,
-        (a): A1Quiz => a,
-        this.ctxManager.cloneContext(),
-      )
-    } catch (error) {
-      throw toBamlError(error);
-    }
-  }
   
   ConvertToA3Quiz(
       question: string,answer: string,explanation?: string | null,
@@ -508,6 +477,37 @@ class BamlStreamClient {
         raw,
         (a): (partial_types.QuestionAnswerWithExplanationSlice | null)[] => a,
         (a): QuestionAnswerWithExplanationSlice[] => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  SplitPage(
+      parsedText: string,chunkNum: number,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
+  ): BamlStream<(partial_types.ContentSlice | null)[], ContentSlice[]> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const env = options.env ? { ...process.env, ...options.env } : { ...process.env };
+      const raw = this.runtime.streamFunction(
+        "SplitPage",
+        {
+          "parsedText": parsedText,"chunkNum": chunkNum
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return new BamlStream<(partial_types.ContentSlice | null)[], ContentSlice[]>(
+        raw,
+        (a): (partial_types.ContentSlice | null)[] => a,
+        (a): ContentSlice[] => a,
         this.ctxManager.cloneContext(),
       )
     } catch (error) {

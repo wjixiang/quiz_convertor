@@ -20,32 +20,12 @@ import { toBamlError } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
 import type { partial_types } from "./partial_types"
 import type * as types from "./types"
-import type {A1Quiz, A2Quiz, A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
+import type {A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
 import type TypeBuilder from "./type_builder"
 
 export class LlmResponseParser {
   constructor(private runtime: BamlRuntime, private ctxManager: BamlCtxManager) {}
 
-  
-  ConvertToA1(
-      llmResponse: string,
-      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry }
-  ): A1Quiz {
-    try {
-      const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
-      return this.runtime.parseLlmResponse(
-        "ConvertToA1",
-        llmResponse,
-        false,
-        this.ctxManager.cloneContext(),
-        __baml_options__?.tb?.__tb(),
-        __baml_options__?.clientRegistry,
-        env,
-      ) as A1Quiz
-    } catch (error) {
-      throw toBamlError(error);
-    }
-  }
   
   ConvertToA3Quiz(
       llmResponse: string,
@@ -167,6 +147,26 @@ export class LlmResponseParser {
     }
   }
   
+  SplitPage(
+      llmResponse: string,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry }
+  ): ContentSlice[] {
+    try {
+      const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      return this.runtime.parseLlmResponse(
+        "SplitPage",
+        llmResponse,
+        false,
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        env,
+      ) as ContentSlice[]
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
   SplitQuestions(
       llmResponse: string,
       __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry }
@@ -192,26 +192,6 @@ export class LlmResponseParser {
 export class LlmStreamParser {
   constructor(private runtime: BamlRuntime, private ctxManager: BamlCtxManager) {}
 
-  
-  ConvertToA1(
-      llmResponse: string,
-      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry }
-  ): partial_types.A1Quiz {
-    try {
-      const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
-      return this.runtime.parseLlmResponse(
-        "ConvertToA1",
-        llmResponse,
-        true,
-        this.ctxManager.cloneContext(),
-        __baml_options__?.tb?.__tb(),
-        __baml_options__?.clientRegistry,
-        env,
-      ) as partial_types.A1Quiz
-    } catch (error) {
-      throw toBamlError(error);
-    }
-  }
   
   ConvertToA3Quiz(
       llmResponse: string,
@@ -328,6 +308,26 @@ export class LlmStreamParser {
         __baml_options__?.clientRegistry,
         env,
       ) as (partial_types.QuestionAnswerWithExplanationSlice | null)[]
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  SplitPage(
+      llmResponse: string,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry }
+  ): (partial_types.ContentSlice | null)[] {
+    try {
+      const env = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      return this.runtime.parseLlmResponse(
+        "SplitPage",
+        llmResponse,
+        true,
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        env,
+      ) as (partial_types.ContentSlice | null)[]
     } catch (error) {
       throw toBamlError(error);
     }

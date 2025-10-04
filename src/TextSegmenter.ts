@@ -1,3 +1,5 @@
+import { b } from "../baml_client/async_client";
+
 export class TextSegmenter {
   text: string;
   segments!: {text: string, start: number, end: number}[];
@@ -75,4 +77,12 @@ export class TextSegmenter {
       return `${marker}${seg.text.trim()}`;
     }).join('\n');
   }
+
+  /**
+   * split origin text into smaller chunk to reduce LLM workload
+   */
+  // async split(text: string): Promise<string> {
+  //   const parsed_text = new TextSegmenter(text).renderForLLM()
+  //   const chunk_index = await b.SplitPage(parsed_text,3)
+  // }
 }

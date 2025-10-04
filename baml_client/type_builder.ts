@@ -22,10 +22,6 @@ import { DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME } from "./
 export default class TypeBuilder {
     private tb: _TypeBuilder;
     
-    A1Quiz: ClassViewer<'A1Quiz', "type" | "class" | "unit" | "tags" | "question" | "options" | "answer" | "analysis" | "source">;
-    
-    A2Quiz: ClassViewer<'A2Quiz', "type" | "class" | "unit" | "tags" | "question" | "options" | "answer" | "analysis" | "source">;
-    
     A3PreQuiz: ClassViewer<'A3PreQuiz', "mainQuestion" | "subQuestion" | "explanation">;
     
     BPreQuiz: ClassViewer<'BPreQuiz', "shared_options" | "questions" | "explanation">;
@@ -59,21 +55,13 @@ export default class TypeBuilder {
     constructor() {
         this.tb = new _TypeBuilder({
           classes: new Set([
-            "A1Quiz","A2Quiz","A3PreQuiz","BPreQuiz","BasicQuiz","ContentSlice","QAunit","QAunitForB","QuestionAnswerPair","QuestionAnswerSlice","QuestionAnswerWithExplanationPair","QuestionAnswerWithExplanationSlice","QuizAnalysis","QuizOptions","Resume","SplitText",
+            "A3PreQuiz","BPreQuiz","BasicQuiz","ContentSlice","QAunit","QAunitForB","QuestionAnswerPair","QuestionAnswerSlice","QuestionAnswerWithExplanationPair","QuestionAnswerWithExplanationSlice","QuizAnalysis","QuizOptions","Resume","SplitText",
           ]),
           enums: new Set([
             
           ]),
           runtime: DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME
         });
-        
-        this.A1Quiz = this.tb.classViewer("A1Quiz", [
-          "type","class","unit","tags","question","options","answer","analysis","source",
-        ]);
-        
-        this.A2Quiz = this.tb.classViewer("A2Quiz", [
-          "type","class","unit","tags","question","options","answer","analysis","source",
-        ]);
         
         this.A3PreQuiz = this.tb.classViewer("A3PreQuiz", [
           "mainQuestion","subQuestion","explanation",
