@@ -52,6 +52,7 @@ class QuizAnalysis {
 
 class BasicQuiz {
   type "single" | "multiple" | "share_question" | "share_option"
+  class string
   question string
   options string[]
   answer string
@@ -76,6 +77,7 @@ class QAunitForB {
 }
 
 class A3PreQuiz {
+  class string
   mainQuestion string
   subQuestion QAunit[]
   explanation string? @description(#"
@@ -84,6 +86,7 @@ class A3PreQuiz {
 }
 
 class BPreQuiz {
+  class string
   shared_options QuizOptions[]
   questions QAunitForB[]
   explanation string? @description(#"
@@ -154,7 +157,14 @@ function ConvertToBasicQuiz(question: string, answer: string, explanation: strin
     - 根据答案格式将类型指定为"single"或"multiple"
     - 只返回JSON对象，不要返回其他内容
     - 答案必须是选项对应的大写字母标号
-    - 修正OCR识别的文字错误
+    - 修正OCR识别的文字错误，移除与题目无关的信息（如目录、页码、机构信息）
+    - 根据试题内容，自行推断试题所属科目。试题所属科目必须是如下科目列表中的一个：
+      - 内科学
+      - 外科学
+      - 生理学
+      - 病理学
+      - 生物化学与分子生物学
+      - 人文精
     
     {{ ctx.output_format }}
   "#
@@ -179,7 +189,14 @@ function ConvertToA3Quiz(question: string, answer: string, explanation: string?)
     - 根据答案格式将类型指定为"single"或"multiple"
     - 只返回JSON对象，不要返回其他内容
     - 答案必须是选项对应的大写字母标号
-    - 修正OCR识别的文字错误
+    - 修正OCR识别的文字错误，移除与题目无关的信息（如目录、页码、机构信息）
+    - 根据试题内容，自行推断试题所属科目。试题所属科目必须是如下科目列表中的一个：
+      - 内科学
+      - 外科学
+      - 生理学
+      - 病理学
+      - 生物化学与分子生物学
+      - 人文精神
 
     {{ ctx.output_format }}
   "#
@@ -204,8 +221,14 @@ function ConvertToBQuiz(question: string, answer: string, explanation: string?) 
     - 根据答案格式将类型指定为"single"或"multiple"
     - 只返回JSON对象，不要返回其他内容
     - 答案必须是选项对应的大写字母标号
-    - 修正OCR识别的文字错误
-
+    - 修正OCR识别的文字错误，移除与题目无关的信息（如目录、页码、机构信息）
+    - - 根据试题内容，自行推断试题所属科目。试题所属科目必须是如下科目列表中的一个：
+      - 内科学
+      - 外科学
+      - 生理学
+      - 病理学
+      - 生物化学与分子生物学
+      - 人文精神
     {{ ctx.output_format }}
   "#
 }
@@ -270,6 +293,9 @@ function MatchQuestionsAnswers(input: SplitText) -> QuestionAnswerSlice[] {
     
     答案（带分割标记）：
     {{ input.answers }}
+
+    ---输出---
+    {{ ctx.output_format }}
   "#
 }
 
@@ -330,6 +356,9 @@ function MatchQuestionsAnswersWithExplanation(input: SplitText) -> QuestionAnswe
     
     答案（带分割标记）：
     {{ input.answers }}
+
+    ---输出---
+    {{ ctx.output_format }}
   "#
 }
 

@@ -35,12 +35,14 @@ export interface StreamState<T> {
 export namespace partial_types {
     
     export interface A3PreQuiz {
+        class?: (string | null)
         mainQuestion?: (string | null)
         subQuestion?: (partial_types.QAunit | null)[]
         explanation: ((string | null) | null)
     }
     
     export interface BPreQuiz {
+        class?: (string | null)
         shared_options?: (partial_types.QuizOptions | null)[]
         questions?: (partial_types.QAunitForB | null)[]
         explanation: ((string | null) | null)
@@ -48,6 +50,7 @@ export namespace partial_types {
     
     export interface BasicQuiz {
         type?: ("single" | "multiple" | "share_question" | "share_option" | null)
+        class?: (string | null)
         question?: (string | null)
         options?: (string | null)[]
         answer?: (string | null)

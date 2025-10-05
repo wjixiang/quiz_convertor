@@ -134,7 +134,7 @@ export class QuizParser {
     const a3Quiz: A3 = {
       _id: '',
       type: 'A3',
-      class: config?.class ?? '',
+      class: config?.class ?? preQuiz.class ?? '',
       unit: config?.unit ?? '',
       tags: config?.tags ?? [],
       source: config?.source ?? '',
@@ -174,7 +174,7 @@ export class QuizParser {
     const bQuiz: B = {
       _id: '',
       type: 'B',
-      class: config?.class ?? '',
+      class: config?.class ?? preQuiz.class ?? '',
       unit: config?.unit ?? '',
       tags: config?.tags ?? [],
       source: config?.source ?? '',
@@ -216,7 +216,7 @@ export class QuizParser {
     const aQuiz: A1 | A2 = {
       _id: '',
       type: config?.type === "A2" ? "A2" : 'A1',
-      class: config?.class ?? '',
+      class: config?.class ?? preQuiz.class ?? '',
       unit: config?.unit ?? '',
       tags: config?.tags ?? [],
       source: config?.source ?? '',

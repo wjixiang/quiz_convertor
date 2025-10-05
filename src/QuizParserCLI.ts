@@ -31,14 +31,14 @@ async function runTest() {
   
   try {
     let result = await parser.parse({
-      class: '外科学',
+      // class: '外科学',
       // unit: '急性中毒专项测试',
-      source: '西综真题',
-      tags: ["2024"],
-      extractedYear: "2024"
+      source: '研D万人模考一2026',
+      tags: ["2026"],
+      extractedYear: "2026"
       // type: "A1"
       },
-      true // 当为true时会进行解析数据提取
+      false // 当为true时会进行解析数据提取
     );
     
     console.log('Parsed quiz data:');

@@ -1,0 +1,32 @@
+[
+  {
+    "quiz": {
+      "type": "X",
+      "class": "",
+      "unit": "",
+      "tags": [
+        "2026"
+      ],
+      "source": "研D万人模考一2026",
+      "question": "具有四级结构的蛋白质是",
+      "options": [
+        {
+          "oid": "A",
+          "text": "肌红蛋白"
+        },
+        {
+          "oid": "B",
+          "text": "血红蛋白"
+        }
+      ],
+      "answer": "B",
+      "analysis": {
+        "point": null,
+        "discuss": null,
+        "link": []
+      }
+    },
+    "error": "Failed to add quiz",
+    "timestamp": "2025-10-05T02:19:08.494Z"
+  }
+]

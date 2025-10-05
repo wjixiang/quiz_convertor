@@ -22,11 +22,11 @@ import { DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME } from "./
 export default class TypeBuilder {
     private tb: _TypeBuilder;
     
-    A3PreQuiz: ClassViewer<'A3PreQuiz', "mainQuestion" | "subQuestion" | "explanation">;
+    A3PreQuiz: ClassViewer<'A3PreQuiz', "class" | "mainQuestion" | "subQuestion" | "explanation">;
     
-    BPreQuiz: ClassViewer<'BPreQuiz', "shared_options" | "questions" | "explanation">;
+    BPreQuiz: ClassViewer<'BPreQuiz', "class" | "shared_options" | "questions" | "explanation">;
     
-    BasicQuiz: ClassViewer<'BasicQuiz', "type" | "question" | "options" | "answer" | "explanation">;
+    BasicQuiz: ClassViewer<'BasicQuiz', "type" | "class" | "question" | "options" | "answer" | "explanation">;
     
     ContentSlice: ClassViewer<'ContentSlice', "start" | "end">;
     
@@ -64,15 +64,15 @@ export default class TypeBuilder {
         });
         
         this.A3PreQuiz = this.tb.classViewer("A3PreQuiz", [
-          "mainQuestion","subQuestion","explanation",
+          "class","mainQuestion","subQuestion","explanation",
         ]);
         
         this.BPreQuiz = this.tb.classViewer("BPreQuiz", [
-          "shared_options","questions","explanation",
+          "class","shared_options","questions","explanation",
         ]);
         
         this.BasicQuiz = this.tb.classViewer("BasicQuiz", [
-          "type","question","options","answer","explanation",
+          "type","class","question","options","answer","explanation",
         ]);
         
         this.ContentSlice = this.tb.classViewer("ContentSlice", [
