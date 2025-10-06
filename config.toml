@@ -1,0 +1,17 @@
+# Quiz Parser Configuration
+
+[quiz]
+source = "2026ljy模考一"
+tags = ["2026"]
+extractedYear = "2026"
+
+[exam_paper]
+name = "2026ljy模考一"
+subject = "综合"
+year = "2026"
+
+[processing]
+default_chunks = 1
+retry_failed = false
+check_failed = false
+use_service = false

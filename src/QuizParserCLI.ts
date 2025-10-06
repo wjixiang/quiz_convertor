@@ -2,73 +2,151 @@ import { QuizParser } from './QuizParser';
 import { ExamPaperService } from './services/ExamPaperService';
 import { QuizProcessingService } from './services/QuizProcessingService';
 import * as readline from 'readline';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as toml from 'toml';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import { quesiton } from './varible';
 import { answer } from './varible_answer';
 
-// Unified configuration for quiz parsing
-const QUIZ_CONFIG = {
-  source: '2026ljy模考一',
-  tags: ["2026"],
-  // class: '生理学',
-  extractedYear: "2026"
-};
+// Configuration interface
+interface QuizConfig {
+  source: string;
+  tags: string[];
+  extractedYear: string;
+}
+
+interface ExamPaperConfig {
+  name: string;
+  subject: string;
+  year: string;
+}
+
+interface ProcessingConfig {
+  default_chunks: number;
+  retry_failed: boolean;
+  check_failed: boolean;
+  use_service: boolean;
+}
+
+interface Config {
+  quiz: QuizConfig;
+  exam_paper: ExamPaperConfig;
+  processing: ProcessingConfig;
+}
+
+// Load configuration from TOML file
+function loadConfig(configPath: string = 'config.toml'): Config {
+  try {
+    const configContent = fs.readFileSync(configPath, 'utf-8');
+    return toml.parse(configContent) as Config;
+  } catch (error) {
+    console.error(`Error loading config from ${configPath}:`, error);
+    process.exit(1);
+  }
+}
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-function showHelp() {
-  console.log(`
-QuizParser CLI - Usage:
-
-Options:
-  --chunks <number>    Split the input into specified number of chunks for processing
-  --retry-failed       Retry sending failed quizzes from local storage
-  --check-failed       Check how many failed quizzes are stored locally
-  --use-service        Use the new service layer for processing
-  --help, -h           Show this help message
-
-Examples:
-  npm run quiz:cli                           # Run without chunking (legacy mode)
-  npm run quiz:cli -- --chunks 3             # Split into 3 chunks (legacy mode)
-  npm run quiz:cli -- --retry-failed         # Retry failed quizzes (legacy mode)
-  npm run quiz:cli -- --check-failed         # Check failed quizzes count (legacy mode)
-  npm run quiz:cli -- --use-service          # Use new service layer
-  npm run quiz:cli -- --use-service --chunks 3  # Use service layer with chunking
-`);
-}
+// Initialize yargs
+const argv = yargs(hideBin(process.argv))
+  .option('chunks', {
+    alias: 'c',
+    type: 'number',
+    description: 'Split the input into specified number of chunks for processing',
+    default: 1
+  })
+  .option('retry-failed', {
+    type: 'boolean',
+    description: 'Retry sending failed quizzes from local storage',
+    default: false
+  })
+  .option('check-failed', {
+    type: 'boolean',
+    description: 'Check how many failed quizzes are stored locally',
+    default: false
+  })
+  .option('use-service', {
+    type: 'boolean',
+    description: 'Use the new service layer for processing',
+    default: false
+  })
+  .option('config', {
+    alias: 'f',
+    type: 'string',
+    description: 'Path to the TOML configuration file',
+    default: 'config.toml'
+  })
+  .option('source', {
+    type: 'string',
+    description: 'Source name for the quiz',
+  })
+  .option('tags', {
+    type: 'string',
+    description: 'Comma-separated tags for the quiz',
+  })
+  .option('year', {
+    type: 'string',
+    description: 'Extracted year for the quiz',
+  })
+  .option('subject', {
+    type: 'string',
+    description: 'Subject for the exam paper',
+  })
+  .help('help')
+  .alias('help', 'h')
+  .example([
+    ['$0', 'Run without chunking (legacy mode)'],
+    ['$0 --chunks 3', 'Split into 3 chunks (legacy mode)'],
+    ['$0 --retry-failed', 'Retry failed quizzes (legacy mode)'],
+    ['$0 --check-failed', 'Check failed quizzes count (legacy mode)'],
+    ['$0 --use-service', 'Use new service layer'],
+    ['$0 --use-service --chunks 3', 'Use service layer with chunking'],
+    ['$0 --config custom.toml', 'Use custom configuration file'],
+  ])
+  .parseSync();
 
 async function runTest() {
-  // Check if command line argument for retrying failed quizzes is provided
-  const args = process.argv.slice(2);
-  if (args.includes('--help') || args.includes('-h')) {
-    showHelp();
+  // Load configuration
+  const config = loadConfig(argv.config);
+  
+  // Override config with command line arguments if provided
+  const quizConfig: QuizConfig = {
+    source: argv.source || config.quiz.source,
+    tags: argv.tags ? argv.tags.split(',').map((tag: string) => tag.trim()) : config.quiz.tags,
+    extractedYear: argv.year || config.quiz.extractedYear
+  };
+  
+  const examPaperConfig: ExamPaperConfig = {
+    name: argv.source || config.exam_paper.name,
+    subject: argv.subject || config.exam_paper.subject,
+    year: argv.year || config.exam_paper.year
+  };
+  
+  if (argv['check-failed']) {
+    checkFailedQuizzes(argv['use-service']);
     rl.close();
     return;
   }
   
-  const useService = args.includes('--use-service');
-  
-  if (args.includes('--retry-failed')) {
-    await retryFailedQuizzes(useService);
+  if (argv['retry-failed']) {
+    await retryFailedQuizzes(argv['use-service']);
     rl.close();
     return;
   }
   
-  if (args.includes('--check-failed')) {
-    checkFailedQuizzes(useService);
-    rl.close();
-    return;
-  }
-  
-  console.log(`Running QuizParser CLI test... (${useService ? 'Service Layer Mode' : 'Legacy Mode'})`);
+  console.log(`Running QuizParser CLI test... (${argv['use-service'] ? 'Service Layer Mode' : 'Legacy Mode'})`);
+  console.log(`Using configuration from: ${argv.config}`);
   
   try {
-    if (useService) {
-      await runWithServiceLayer(args);
+    if (argv['use-service']) {
+      await runWithServiceLayer(quizConfig, examPaperConfig);
     } else {
-      await runLegacyMode(args);
+      await runLegacyMode(quizConfig, argv.chunks);
     }
   } catch (error) {
     console.error('Error running quiz parser:', error);
@@ -80,7 +158,7 @@ async function runTest() {
 /**
  * 使用新的服务层运行
  */
-async function runWithServiceLayer(args: string[]) {
+async function runWithServiceLayer(quizConfig: QuizConfig, examPaperConfig: ExamPaperConfig) {
   // 创建服务实例
   const examPaperService = new ExamPaperService();
   const processingService = new QuizProcessingService();
@@ -88,14 +166,14 @@ async function runWithServiceLayer(args: string[]) {
   // 创建试卷
   console.log('Creating exam paper...');
   const examPaper = await examPaperService.createExamPaperFromText(
-    '2026ljy模考一',
+    examPaperConfig.name,
     quesiton,
     answer,
-    '2026ljy模考一',
+    examPaperConfig.name,
     {
-      year: '2026',
-      tags: ['2026'],
-      subject: '综合'
+      year: examPaperConfig.year,
+      tags: quizConfig.tags,
+      subject: examPaperConfig.subject
     }
   );
   
@@ -103,7 +181,7 @@ async function runWithServiceLayer(args: string[]) {
   
   // 处理试卷
   console.log('Processing exam paper...');
-  const processResult = await examPaperService.processExamPaper(examPaper.id, QUIZ_CONFIG);
+  const processResult = await examPaperService.processExamPaper(examPaper.id, quizConfig);
   
   console.log(`Processed ${processResult.quizzes.length} quizzes`);
   
@@ -129,20 +207,8 @@ async function runWithServiceLayer(args: string[]) {
 /**
  * 使用传统模式运行
  */
-async function runLegacyMode(args: string[]) {
+async function runLegacyMode(quizConfig: QuizConfig, chunkNum: number) {
   const parser = new QuizParser(quesiton, answer);
-  
-  // Check if chunking is enabled
-  const chunkIndex = args.indexOf('--chunks');
-  let chunkNum = 1; // Default to no chunking
-  
-  if (chunkIndex !== -1 && args[chunkIndex + 1]) {
-    chunkNum = parseInt(args[chunkIndex + 1], 10);
-    if (isNaN(chunkNum) || chunkNum < 1) {
-      console.error('Invalid chunk number. Using default (no chunking).');
-      chunkNum = 1;
-    }
-  }
   
   let result;
   
@@ -155,7 +221,7 @@ async function runLegacyMode(args: string[]) {
     for (let i = 0; i < chunks.length; i++) {
       console.log(`Processing chunk ${i + 1}/${chunks.length}...`);
       try {
-        const chunkResult = await chunks[i].parse(QUIZ_CONFIG, false);
+        const chunkResult = await chunks[i].parse(quizConfig, false);
         
         result.push(...chunkResult);
         console.log(`Chunk ${i + 1} processed: ${chunkResult.length} quizzes`);
@@ -165,7 +231,7 @@ async function runLegacyMode(args: string[]) {
     }
   } else {
     console.log('Processing without chunking...');
-    result = await parser.parse(QUIZ_CONFIG, false);
+    result = await parser.parse(quizConfig, false);
   }
   
   console.log(`Total quizzes parsed: ${result.length}`);
