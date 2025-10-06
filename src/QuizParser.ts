@@ -4,10 +4,6 @@ import { b } from '../baml_client/async_client';
 import { TextSegmenter } from "./TextSegmenter";
 import type { oid, A1, A2, X, A3, B } from "./types/quizData.types";
 import pLimit from 'p-limit';
-import * as dotenv from "dotenv";
-import * as fs from 'fs';
-import * as path from 'path';
-dotenv.config()
 
 export type QuizWithoutId = Omit<quiz, '_id'> ;
 import { QuestionAnswerPair, BasicQuiz, QuestionAnswerWithExplanationSlice, QuestionAnswerWithExplanationPair } from '../baml_client/types';
@@ -15,7 +11,6 @@ import { QuestionAnswerPair, BasicQuiz, QuestionAnswerWithExplanationSlice, Ques
 export class QuizParser {
   private questionsText: TextSegmenter;
   private answersText: string;
-  private static readonly FAILED_QUIZZES_FILE = path.join(process.cwd(), 'failed_quizzes.json');
 
   constructor(questionsText: string, answersText: string) {
     this.questionsText = new TextSegmenter(questionsText);
@@ -97,7 +92,7 @@ export class QuizParser {
     const xQuiz: X = {
       _id: '',
       type: 'X',
-      class: config?.class ?? '',
+      class: config?.class ?? preQuiz.clas ?? preQuiz.clas ?? '',
       unit: config?.unit ?? '',
       tags: config?.tags ?? [],
       source: config?.source ?? '',
@@ -134,7 +129,7 @@ export class QuizParser {
     const a3Quiz: A3 = {
       _id: '',
       type: 'A3',
-      class: config?.class ?? preQuiz.class ?? '',
+      class: config?.class ?? preQuiz.clas ?? '',
       unit: config?.unit ?? '',
       tags: config?.tags ?? [],
       source: config?.source ?? '',
@@ -174,7 +169,7 @@ export class QuizParser {
     const bQuiz: B = {
       _id: '',
       type: 'B',
-      class: config?.class ?? preQuiz.class ?? '',
+      class: config?.class ?? preQuiz.clas ?? '',
       unit: config?.unit ?? '',
       tags: config?.tags ?? [],
       source: config?.source ?? '',
@@ -216,7 +211,7 @@ export class QuizParser {
     const aQuiz: A1 | A2 = {
       _id: '',
       type: config?.type === "A2" ? "A2" : 'A1',
-      class: config?.class ?? preQuiz.class ?? '',
+      class: config?.class ?? preQuiz.clas ?? '',
       unit: config?.unit ?? '',
       tags: config?.tags ?? [],
       source: config?.source ?? '',
@@ -401,180 +396,5 @@ export class QuizParser {
     
     throw new Error("Not implemented");
     
-  }
-
-  /**
-   * Send quiz data to the server with retry mechanism
-   * @param quizData The quiz data to send
-   * @param maxRetries Maximum number of retry attempts (default: 3)
-   * @param baseDelay Base delay in milliseconds for exponential backoff (default: 1000)
-   * @returns Promise with the server response
-   * @throws Error if all retry attempts fail
-   */
-  async sendQuizToServer(
-    quizData: QuizWithoutId,
-    maxRetries: number = 3,
-    baseDelay: number = 1000
-  ): Promise<any> {
-    const apiUrl = process.env.API_BASE_URL || 'http://localhost:3000';
-    let lastError: Error | null = null;
-    
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        const response = await fetch(`${apiUrl}/api/addQuiz`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(quizData),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.log(`failed quiz: ${JSON.stringify(quizData)}`)
-          throw new Error(errorData.message || 'Failed to add quiz');
-        }
-
-        // Success - return the response
-        return await response.json();
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-        console.error(`Attempt ${attempt + 1}/${maxRetries + 1} failed:`, lastError.message);
-        
-        // If this is the last attempt, don't wait anymore
-        if (attempt === maxRetries) {
-          break;
-        }
-        
-        // Calculate exponential backoff delay with jitter
-        const jitter = Math.random() * 0.1; // Add 0-10% jitter
-        const delay = baseDelay * Math.pow(2, attempt) * (1 + jitter);
-        
-        console.log(`Retrying in ${Math.round(delay)}ms...`);
-        await this.sleep(delay);
-      }
-    }
-    
-    // All attempts failed - save to local storage
-    console.error(`Failed to send quiz after ${maxRetries + 1} attempts. Saving to local storage.`);
-    await this.saveFailedQuiz(quizData, lastError?.message || 'Unknown error');
-    
-    throw lastError || new Error('Failed to send quiz to server after multiple attempts');
-  }
-
-  /**
-   * Save failed quiz to local JSON file
-   * @param quizData The quiz data that failed to send
-   * @param errorMessage The error message
-   */
-  private async saveFailedQuiz(quizData: QuizWithoutId, errorMessage: string): Promise<void> {
-    try {
-      let failedQuizzes: Array<{quiz: QuizWithoutId, error: string, timestamp: string}> = [];
-      
-      // Load existing failed quizzes if file exists
-      if (fs.existsSync(QuizParser.FAILED_QUIZZES_FILE)) {
-        const data = fs.readFileSync(QuizParser.FAILED_QUIZZES_FILE, 'utf8');
-        failedQuizzes = JSON.parse(data);
-      }
-      
-      // Add new failed quiz
-      failedQuizzes.push({
-        quiz: quizData,
-        error: errorMessage,
-        timestamp: new Date().toISOString()
-      });
-      
-      // Save to file
-      fs.writeFileSync(QuizParser.FAILED_QUIZZES_FILE, JSON.stringify(failedQuizzes, null, 2));
-      console.log(`Saved failed quiz to ${QuizParser.FAILED_QUIZZES_FILE}`);
-    } catch (error) {
-      console.error('Failed to save quiz to local storage:', error);
-    }
-  }
-
-  /**
-   * Retry sending all failed quizzes from local storage
-   * @param maxRetries Maximum number of retry attempts per quiz (default: 3)
-   * @param baseDelay Base delay in milliseconds for exponential backoff (default: 1000)
-   * @returns Promise with the count of successfully retried quizzes
-   */
-  static async retryFailedQuizzes(maxRetries: number = 3, baseDelay: number = 1000): Promise<number> {
-    if (!fs.existsSync(QuizParser.FAILED_QUIZZES_FILE)) {
-      console.log('No failed quizzes file found.');
-      return 0;
-    }
-    
-    try {
-      const data = fs.readFileSync(QuizParser.FAILED_QUIZZES_FILE, 'utf8');
-      const failedQuizzes: Array<{quiz: QuizWithoutId, error: string, timestamp: string}> = JSON.parse(data);
-      
-      if (failedQuizzes.length === 0) {
-        console.log('No failed quizzes to retry.');
-        return 0;
-      }
-      
-      console.log(`Found ${failedQuizzes.length} failed quizzes. Retrying...`);
-      
-      const successfulRetries: number[] = [];
-      const remainingFailedQuizzes: Array<{quiz: QuizWithoutId, error: string, timestamp: string}> = [];
-      
-      // Create a temporary QuizParser instance to use the sendQuizToServer method
-      const tempParser = new QuizParser('', '');
-      
-      for (let i = 0; i < failedQuizzes.length; i++) {
-        const failedQuiz = failedQuizzes[i];
-        try {
-          await tempParser.sendQuizToServer(failedQuiz.quiz, maxRetries, baseDelay);
-          successfulRetries.push(i);
-          console.log(`Successfully retried quiz ${i + 1}/${failedQuizzes.length}`);
-        } catch (error) {
-          console.error(`Failed to retry quiz ${i + 1}/${failedQuizzes.length}:`, error);
-          remainingFailedQuizzes.push(failedQuiz);
-        }
-      }
-      
-      // Update the failed quizzes file with only the ones that still failed
-      if (remainingFailedQuizzes.length > 0) {
-        fs.writeFileSync(QuizParser.FAILED_QUIZZES_FILE, JSON.stringify(remainingFailedQuizzes, null, 2));
-        console.log(`Updated failed quizzes file with ${remainingFailedQuizzes.length} remaining items.`);
-      } else {
-        // All quizzes were successfully retried, remove the file
-        fs.unlinkSync(QuizParser.FAILED_QUIZZES_FILE);
-        console.log('All failed quizzes were successfully retried. Removed failed quizzes file.');
-      }
-      
-      return successfulRetries.length;
-    } catch (error) {
-      console.error('Error while retrying failed quizzes:', error);
-      return 0;
-    }
-  }
-
-  /**
-   * Get the count of failed quizzes in local storage
-   * @returns Number of failed quizzes
-   */
-  static getFailedQuizzesCount(): number {
-    if (!fs.existsSync(QuizParser.FAILED_QUIZZES_FILE)) {
-      return 0;
-    }
-    
-    try {
-      const data = fs.readFileSync(QuizParser.FAILED_QUIZZES_FILE, 'utf8');
-      const failedQuizzes: Array<{quiz: QuizWithoutId, error: string, timestamp: string}> = JSON.parse(data);
-      return failedQuizzes.length;
-    } catch (error) {
-      console.error('Error reading failed quizzes file:', error);
-      return 0;
-    }
-  }
-
-  /**
-   * Helper method to sleep for a specified duration
-   * @param ms Duration in milliseconds
-   * @returns Promise that resolves after the specified duration
-   */
-  private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

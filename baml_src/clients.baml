@@ -76,3 +76,13 @@ client<llm> Kimi {
   }
 }
 
+client<llm> KimiK2Turbo {
+  provider openai-generic
+  options {
+    model "kimi-k2-turbo-preview"
+    api_key env.KIMI_API_KEY
+    base_url "https://api.moonshot.cn/v1"
+  }
+}
+
+

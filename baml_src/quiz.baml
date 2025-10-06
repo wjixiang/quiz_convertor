@@ -52,7 +52,7 @@ class QuizAnalysis {
 
 class BasicQuiz {
   type "single" | "multiple" | "share_question" | "share_option"
-  class string
+  clas string @alias("class")
   question string
   options string[]
   answer string
@@ -77,7 +77,7 @@ class QAunitForB {
 }
 
 class A3PreQuiz {
-  class string
+  clas string @alias("class")
   mainQuestion string
   subQuestion QAunit[]
   explanation string? @description(#"
@@ -86,7 +86,7 @@ class A3PreQuiz {
 }
 
 class BPreQuiz {
-  class string
+  clas string @alias("class")
   shared_options QuizOptions[]
   questions QAunitForB[]
   explanation string? @description(#"
@@ -239,7 +239,7 @@ class SplitText {
 }
 
 function MatchQuestionsAnswers(input: SplitText) -> QuestionAnswerSlice[] {
-  client GLM46
+  client KimiK2Turbo
   prompt #"
     {{_.role("user")}}
     使用分割点标记匹配以下问题和答案。
@@ -248,6 +248,7 @@ function MatchQuestionsAnswers(input: SplitText) -> QuestionAnswerSlice[] {
     返回一个JSON数组，其中每个元素是一个包含以下内容的对象：
     - type: 题目类型，必须是 "single" | "multiple" | "share_question" | "share_option" 中的一个
     - question_range: 问题的 [起始索引, 结束索引]
+      - 为双侧闭合区间，即包含两端的索引，包含区间两端所指向行数的文本
     - answer: 该题的正确选项字母 (A/B/C/D/E)
       - 单选题："A", "B", 等 (一个字母)
       - 多选题："AB", "ACD", 等 (字母的任意组合)
@@ -300,7 +301,7 @@ function MatchQuestionsAnswers(input: SplitText) -> QuestionAnswerSlice[] {
 }
 
 function MatchQuestionsAnswersWithExplanation(input: SplitText) -> QuestionAnswerWithExplanationSlice[] {
-  client GLM46
+  client KimiK2Turbo
   prompt #"
     {{_.role("user")}}
     使用分割点标记匹配以下问题和答案。
@@ -309,6 +310,7 @@ function MatchQuestionsAnswersWithExplanation(input: SplitText) -> QuestionAnswe
     返回一个JSON数组，其中每个元素是一个包含以下内容的对象：
     - type: 题目类型，必须是 "single" | "multiple" | "share_question" | "share_option" 中的一个
     - question_range: 问题的 [起始索引, 结束索引]
+      - 为双侧闭合区间，即包含两端的索引，包含区间两端所指向行数的文本
     - answer_range: 解释的 [起始索引, 结束索引]
     - answer: 该题的正确选项字母 (A/B/C/D/E)
       - 单选题："A", "B", 等 (一个字母)

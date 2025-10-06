@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 
-import { QuizParser } from './QuizParser';
+import { QuizProcessingService } from './services/QuizProcessingService';
 
 /**
  * Script to retry failed quizzes from local storage
@@ -8,10 +8,11 @@ import { QuizParser } from './QuizParser';
  */
 
 async function main() {
+  const processingService = new QuizProcessingService();
   const args = process.argv.slice(2);
   
   if (args.includes('--check')) {
-    const count = QuizParser.getFailedQuizzesCount();
+    const count = processingService.getFailedQuizzesCount();
     if (count === 0) {
       console.log('✅ No failed quizzes found.');
     } else {
@@ -40,14 +41,14 @@ Description:
   console.log('🔄 Retrying failed quizzes...');
   
   try {
-    const successCount = await QuizParser.retryFailedQuizzes();
+    const successCount = await processingService.retryFailedQuizzes();
     if (successCount > 0) {
       console.log(`✅ Successfully retried ${successCount} quizzes.`);
     } else {
       console.log('ℹ️ No quizzes were successfully retried.');
     }
     
-    const remainingCount = QuizParser.getFailedQuizzesCount();
+    const remainingCount = processingService.getFailedQuizzesCount();
     if (remainingCount > 0) {
       console.log(`⚠️ ${remainingCount} quizzes still failed. They will be retried next time.`);
     }

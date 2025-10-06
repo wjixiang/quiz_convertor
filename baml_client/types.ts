@@ -47,7 +47,7 @@ export function get_checks<CheckName extends string>(checks: Record<CheckName, C
     return Object.values(checks)
 }
 export interface A3PreQuiz {
-  class: string
+  clas: string
   mainQuestion: string
   subQuestion: QAunit[]
   explanation?: string | null
@@ -55,7 +55,7 @@ export interface A3PreQuiz {
 }
 
 export interface BPreQuiz {
-  class: string
+  clas: string
   shared_options: QuizOptions[]
   questions: QAunitForB[]
   explanation?: string | null
@@ -64,7 +64,7 @@ export interface BPreQuiz {
 
 export interface BasicQuiz {
   type: "single" | "multiple" | "share_question" | "share_option"
-  class: string
+  clas: string
   question: string
   options: string[]
   answer: string
