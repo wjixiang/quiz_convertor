@@ -72,6 +72,12 @@ export interface BasicQuiz {
   
 }
 
+export interface Chunks {
+  question: ContentSlice
+  answer: ContentSlice
+  
+}
+
 export interface ContentSlice {
   start: number
   end: number

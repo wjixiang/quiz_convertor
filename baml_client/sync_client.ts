@@ -19,7 +19,7 @@ import type { BamlRuntime, FunctionResult, BamlCtxManager, Image, Audio, ClientR
 import { toBamlError, type HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type * as types from "./types"
-import type {A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
+import type {A3PreQuiz, BPreQuiz, BasicQuiz, Chunks, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
 import type TypeBuilder from "./type_builder"
 import { HttpRequest, HttpStreamRequest } from "./sync_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -237,9 +237,9 @@ export class BamlSyncClient {
   }
   
   SplitPage(
-      parsedText: string,chunkNum: number,
+      parsedQuestionText: string,parsedAnswerText: string,chunkNum: number,
       __baml_options__?: BamlCallOptions
-  ): ContentSlice[] {
+  ): Chunks[] {
     try {
       const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
       const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
@@ -247,7 +247,7 @@ export class BamlSyncClient {
       const raw = this.runtime.callFunctionSync(
         "SplitPage",
         {
-          "parsedText": parsedText,"chunkNum": chunkNum
+          "parsedQuestionText": parsedQuestionText,"parsedAnswerText": parsedAnswerText,"chunkNum": chunkNum
         },
         this.ctxManager.cloneContext(),
         options.tb?.__tb(),
@@ -255,7 +255,7 @@ export class BamlSyncClient {
         collector,
         env,
       )
-      return raw.parsed(false) as ContentSlice[]
+      return raw.parsed(false) as Chunks[]
     } catch (error: any) {
       throw toBamlError(error);
     }

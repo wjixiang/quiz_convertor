@@ -19,7 +19,7 @@ import type { BamlRuntime, BamlCtxManager, ClientRegistry, Image, Audio } from "
 import { toBamlError, HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
 import type * as types from "./types"
-import type {A3PreQuiz, BPreQuiz, BasicQuiz, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
+import type {A3PreQuiz, BPreQuiz, BasicQuiz, Chunks, ContentSlice, QAunit, QAunitForB, QuestionAnswerPair, QuestionAnswerSlice, QuestionAnswerWithExplanationPair, QuestionAnswerWithExplanationSlice, QuizAnalysis, QuizOptions, Resume, SplitText} from "./types"
 import type TypeBuilder from "./type_builder"
 
 type BamlCallOptions = {
@@ -165,7 +165,7 @@ export class AsyncHttpRequest {
   }
   
   async SplitPage(
-      parsedText: string,chunkNum: number,
+      parsedQuestionText: string,parsedAnswerText: string,chunkNum: number,
       __baml_options__?: BamlCallOptions
   ): Promise<HTTPRequest> {
     try {
@@ -173,7 +173,7 @@ export class AsyncHttpRequest {
       return await this.runtime.buildRequest(
         "SplitPage",
         {
-          "parsedText": parsedText,"chunkNum": chunkNum
+          "parsedQuestionText": parsedQuestionText,"parsedAnswerText": parsedAnswerText,"chunkNum": chunkNum
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -347,7 +347,7 @@ export class AsyncHttpStreamRequest {
   }
   
   async SplitPage(
-      parsedText: string,chunkNum: number,
+      parsedQuestionText: string,parsedAnswerText: string,chunkNum: number,
       __baml_options__?: BamlCallOptions
   ): Promise<HTTPRequest> {
     try {
@@ -355,7 +355,7 @@ export class AsyncHttpStreamRequest {
       return await this.runtime.buildRequest(
         "SplitPage",
         {
-          "parsedText": parsedText,"chunkNum": chunkNum
+          "parsedQuestionText": parsedQuestionText,"parsedAnswerText": parsedAnswerText,"chunkNum": chunkNum
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),

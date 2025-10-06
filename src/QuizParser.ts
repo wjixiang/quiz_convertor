@@ -348,6 +348,52 @@ export class QuizParser {
   }
 
   /**
+   * Split questions and answers text into smaller chunks for processing
+   * @param chunkNum Number of chunks to split the text into
+   * @returns Array of QuizParser instances, each representing a chunk
+   */
+  async chunkInput(chunkNum: number): Promise<QuizParser[]> {
+    if (chunkNum <= 1) {
+      return [this];
+    }
+
+    try {
+      // Get the segmented questions and answers text
+      const questionsSegmentedText = this.questionsText.renderForLLM();
+      
+      // Create TextSegmenter for answers
+      const answersSegmenter = new TextSegmenter(this.answersText);
+      const answersSegmentedText = answersSegmenter.renderForLLM();
+      
+      // Use BAML to split both questions and answers together synchronously
+      const chunks = await b.SplitPage(questionsSegmentedText, answersSegmentedText, chunkNum);
+      
+      // Create QuizParser instances for each chunk
+      const chunkedParsers: QuizParser[] = [];
+      
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        
+        // Extract the actual text for this chunk
+        const questionsText = this.questionsText.getTextByRange(chunk.question.start, chunk.question.end);
+        
+  
+        // Extract the corresponding answers
+        const answersText = answersSegmenter.getTextByRange(chunk.answer.start, chunk.answer.end);
+        
+        // Create a new QuizParser instance for this chunk
+        const chunkedParser = new QuizParser(questionsText, answersText);
+        chunkedParsers.push(chunkedParser);
+      }
+      
+      return chunkedParsers;
+    } catch (error) {
+      console.error('Failed to chunk input:', error);
+      throw new Error(`Chunking failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
    * Helper to validate parsed quiz data
    */
   private validateQuiz(quizData: quiz): boolean {

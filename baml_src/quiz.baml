@@ -164,7 +164,7 @@ function ConvertToBasicQuiz(question: string, answer: string, explanation: strin
       - 生理学
       - 病理学
       - 生物化学与分子生物学
-      - 人文精
+      - 人文精神
     
     {{ ctx.output_format }}
   "#

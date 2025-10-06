@@ -28,6 +28,8 @@ export default class TypeBuilder {
     
     BasicQuiz: ClassViewer<'BasicQuiz', "type" | "class" | "question" | "options" | "answer" | "explanation">;
     
+    Chunks: ClassViewer<'Chunks', "question" | "answer">;
+    
     ContentSlice: ClassViewer<'ContentSlice', "start" | "end">;
     
     QAunit: ClassViewer<'QAunit', "question" | "options" | "answer">;
@@ -55,7 +57,7 @@ export default class TypeBuilder {
     constructor() {
         this.tb = new _TypeBuilder({
           classes: new Set([
-            "A3PreQuiz","BPreQuiz","BasicQuiz","ContentSlice","QAunit","QAunitForB","QuestionAnswerPair","QuestionAnswerSlice","QuestionAnswerWithExplanationPair","QuestionAnswerWithExplanationSlice","QuizAnalysis","QuizOptions","Resume","SplitText",
+            "A3PreQuiz","BPreQuiz","BasicQuiz","Chunks","ContentSlice","QAunit","QAunitForB","QuestionAnswerPair","QuestionAnswerSlice","QuestionAnswerWithExplanationPair","QuestionAnswerWithExplanationSlice","QuizAnalysis","QuizOptions","Resume","SplitText",
           ]),
           enums: new Set([
             
@@ -73,6 +75,10 @@ export default class TypeBuilder {
         
         this.BasicQuiz = this.tb.classViewer("BasicQuiz", [
           "type","class","question","options","answer","explanation",
+        ]);
+        
+        this.Chunks = this.tb.classViewer("Chunks", [
+          "question","answer",
         ]);
         
         this.ContentSlice = this.tb.classViewer("ContentSlice", [
